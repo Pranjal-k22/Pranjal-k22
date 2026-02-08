@@ -1,5 +1,12 @@
 # 💫 About Me:
-Aspiring B.Tech in Computer Science and Engineering student, class of 2027, eager to leverage my technical foundation. I am currently seeking opportunities to apply my skills in a dynamic environment. My coursework has provided me with a strong understanding of core engineering principles. I am passionate about technology and eager to contribute to innovative projects. I am dedicated to continuous learning and development, constantly seeking opportunities to expand my knowledge and expertise.
+I am a **B.Tech Computer Science and Engineering undergraduate (Class of 2027)** with hands-on experience in **full-stack web development and software engineering**.
+
+I have worked on building **scalable, user-focused applications** using modern technologies such as **React, Redux, Node.js, and REST APIs**, and have practical experience through an **SDE Internship**, where I contributed to developing responsive interfaces and performance-optimized dashboards for real-world applications.
+
+My academic journey, combined with project-based learning, has helped me build a strong foundation in **data structures, databases, web technologies, and software design principles**. I enjoy solving problems, learning new technologies, and turning ideas into functional products.
+
+I am currently seeking **Software Development Engineer internship opportunities** where I can contribute, learn, and grow as an engineer.
+
 
 
 ## 🌐 Socials:
