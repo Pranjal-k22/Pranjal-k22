@@ -1,11 +1,12 @@
-# 💫 About Me:
-I am a **B.Tech Computer Science and Engineering undergraduate (Class of 2027)** with hands-on experience in **full-stack web development and software engineering**.
+# 💫 About Me
+I am a **B.Tech CSE (Health Informatics) undergraduate (Class of 2027)** passionate about turning complex problems into scalable, user-focused products. 
 
-I have worked on building **scalable, user-focused applications** using modern technologies such as **React, Redux, Node.js, and REST APIs**, and have practical experience through an **SDE Internship**, where I contributed to developing responsive interfaces and performance-optimized dashboards for real-world applications.
-
-My academic journey, combined with project-based learning, has helped me build a strong foundation in **data structures, databases, web technologies, and software design principles**. I enjoy solving problems, learning new technologies, and turning ideas into functional products.
-
-I am currently seeking **Software Development Engineer internship opportunities** where I can contribute, learn, and grow as an engineer.
+- 🔭 **Currently working on:** High-performance web applications (React, Next.js, Node.js) and Medical Cyber-Physical Systems (MCPS).
+- 💼 **Experience:** SDE Intern at Bluestock Fintech, contributing to responsive interfaces and optimized dashboards.
+- 🚀 **Featured Projects:** Built **QuickStay** (a secure, dual-sided hospitality marketplace) and **HealConnect** (an IoT smart health monitoring system).
+- 💻 **Tech Stack:** MERN, Next.js, Tailwind CSS, C++, Java.
+- 🧠 **Sharpening my skills in:** Advanced DSA for competitive programming and exploring applied Machine Learning (CNNs).
+- 📫 **Looking for:** Software Development Engineer internship opportunities for Summer 2026/2027.
 
 
 
