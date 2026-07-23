@@ -164,7 +164,7 @@ philosophy: >
 
 ### 🗓️ 3D Contribution Calendar
 
-<img width="100%" src="https://raw.githubusercontent.com/Pranjal-k22/Pranjal-k22/output/profile-3d-contrib/profile-night-rainbow.svg"/>
+<img width="100%" src="https://raw.githubusercontent.com/Pranjal-k22/Pranjal-k22/main/profile-3d-contrib/profile-night-rainbow.svg"/>
 
 </div>
 
