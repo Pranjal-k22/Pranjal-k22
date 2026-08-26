@@ -169,15 +169,20 @@ philosophy: >
 
 ## 📊 GitHub Analytics
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>📊 GitHub Analytics
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
 
 <div align="center">
+
 <img height="165" src="https://github-readme-stats-azure-five-38.vercel.app/api?username=Pranjal-k22&show_icons=true&theme=tokyonight&hide_border=true&include_all_commits=true&count_private=true&rank_icon=github"/>
 <img height="165" src="https://github-readme-stats-azure-five-38.vercel.app/api/top-langs/?username=Pranjal-k22&layout=compact&theme=tokyonight&hide_border=true"/>
+
 <img src="https://nirzak-streak-stats.vercel.app/?user=Pranjal-k22&theme=tokyonight&hide_border=true"/>
+
 <img src="https://github-profile-trophy.vercel.app/?username=Pranjal-k22&theme=tokyonight&no-frame=true&row=1&column=6&margin-w=8"/>
+
 <img width="100%" src="https://github-readme-activity-graph.vercel.app/graph?username=Pranjal-k22&theme=tokyo-night&hide_border=true&area=true"/>
-<br/>
+
+</div>
 
 ### 🗓️ 3D Contribution Calendar
 
