@@ -80,25 +80,45 @@ philosophy: >
 
 ## 🚀 Featured Projects
 
+## 🚀 Featured Projects
+
 <table width="100%">
 <tr>
-<td width="50%" valign="top">
-<h3>🏨 QuickStay</h3>
-<p><em>Secure, dual-sided hospitality marketplace</em></p>
-<p>Real-time booking engine connecting hosts and guests, with integrated payments and a review system built for trust on both sides of the transaction.</p>
+<td width="33%" valign="top">
+<h3>🏥 HealthPulse</h3>
+<p><em>Full-stack healthcare appointment & clinical platform</em></p>
+<p>Atomic, conflict-free doctor scheduling backed by MongoDB compound partial indexes, a dual-engine AI clinical-summary pipeline, and JWT auth with instant session revocation.</p>
+<a href="https://www.health-pulse.app/">🔗 Live</a> · <a href="https://github.com/Pranjal-k22/Healthcare-app-manager">💻 Code</a>
+<br/><br/>
 <img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react"/>
+<img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white"/>
+<img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white"/>
+<img src="https://img.shields.io/badge/MongoDB-4EA94B?style=flat-square&logo=mongodb&logoColor=white"/>
+<img src="https://img.shields.io/badge/Gemini-8E75B2?style=flat-square&logo=googlegemini&logoColor=white"/>
+</td>
+<td width="33%" valign="top">
+<h3>💬 VibeChat</h3>
+<p><em>Real-time full-stack messaging platform</em></p>
+<p>Sub-100ms message distribution with custom Socket.io channels, a 6-stage Mongoose aggregation pipeline, and a lean 1.17MB production bundle.</p>
+<a href="https://github.com/Pranjal-k22">💻 Code</a>
+<br/><br/>
+<img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react"/>
+<img src="https://img.shields.io/badge/Socket.io-010101?style=flat-square&logo=socket.io&logoColor=white"/>
 <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white"/>
 <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=flat-square&logo=mongodb&logoColor=white"/>
 <img src="https://img.shields.io/badge/Tailwind-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white"/>
 </td>
-<td width="50%" valign="top">
-<h3>🩺 HealConnect</h3>
-<p><em>IoT smart health monitoring system</em></p>
-<p>Streams real-time vitals from connected devices, flagging anomalies early — built at the intersection of Medical Cyber-Physical Systems and modern web tooling.</p>
-<img src="https://img.shields.io/badge/IoT-0F2027?style=flat-square&logo=raspberrypi&logoColor=white"/>
-<img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white"/>
-<img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white"/>
-<img src="https://img.shields.io/badge/MCPS-7F00FF?style=flat-square"/>
+<td width="33%" valign="top">
+<h3>🔮 AstroSync</h3>
+<p><em>AI-powered compatibility analysis platform</em></p>
+<p>A TypeScript SPA with 10 algorithmic scoring modules and Gemini-powered serverless functions featuring multi-model fallback and chat-history normalization.</p>
+<a href="https://astro-sync-liard.vercel.app/">🔗 Live</a> · <a href="https://github.com/Pranjal-k22/AstroSync">💻 Code</a>
+<br/><br/>
+<img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react"/>
+<img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white"/>
+<img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white"/>
+<img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white"/>
+<img src="https://img.shields.io/badge/Gemini-8E75B2?style=flat-square&logo=googlegemini&logoColor=white"/>
 </td>
 </tr>
 </table>
