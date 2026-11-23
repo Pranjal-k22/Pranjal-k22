@@ -402,6 +402,41 @@ def heatmap(data):
     first = datetime.date.fromisoformat(days[0]["date"])
     lead = (first.weekday() + 1) % 7  # sunday = 0
     cell, step, gx, gy = 12, 15, 44, 96
+    ncols = (len(days) + lead + 6) // 7
+    right = gx + ncols * step - 3
+    h = gy + 7 * step + 44
+    is_static = bool(os.environ.get("STATIC"))
+
+    # --- 1. Build serpentine (zig-zag) path across all 7 rows x ncols ---
+    # Even rows go left -> right; odd rows go right -> left.
+    # Every step (horizontal or row turn) is exactly `step` (15px), so
+    # calcMode="linear" gives strictly constant speed across every cell.
+    route = []
+    pos_to_idx = {}
+    for row in range(7):
+        cols = range(ncols) if row % 2 == 0 else range(ncols - 1, -1, -1)
+        for col in cols:
+            pos_to_idx[(col, row)] = len(route)
+            cx = gx + col * step + cell / 2
+            cy = gy + row * step + cell / 2
+            route.append((cx, cy))
+
+    path_d = f"M {route[0][0]:.1f} {route[0][1]:.1f} " + " ".join(
+        f"L {x:.1f} {y:.1f}" for x, y in route[1:]
+    )
+
+    # --- 2. Synchronized timing constants (all animations share T_total) ---
+    total_steps = len(route) - 1
+    dt_cell = 0.075                     # seconds per cell (~28s for 371 cells)
+    t_run = total_steps * dt_cell       # time for head to sweep the entire grid
+    t_tail = 5 * dt_cell                # time for last body segment to finish
+    t_reset = t_tail + 2.2              # tail exit + respawn fade + brief pause
+    t_total = t_run + t_reset
+
+    f_respawn_start = (t_run + t_tail + 0.35) / t_total
+    f_respawn_end = (t_total - 0.45) / t_total
+
+    # --- 3. Render contribution cells with synchronized eat & respawn SMIL ---
     cells, months, seen = [], [], set()
     for i, day in enumerate(days):
         k = i + lead
@@ -410,15 +445,86 @@ def heatmap(data):
         if date.day <= 7 and (date.year, date.month) not in seen and row == 0:
             seen.add((date.year, date.month))
             months.append((col, date.strftime("%b")))
+
         c = day["count"]
-        delay = 1.0 + col * 0.03 + row * 0.02
+        orig_fill = BLUE[level_for(c)]
+        eat_anim = ""
+
+        if c > 0 and not is_static:
+            idx = pos_to_idx[(col, row)]
+            t_hit = idx * dt_cell
+            f_hit = max(0.0001, t_hit / t_total)
+            f_eat = min((t_hit + 0.04) / t_total, f_respawn_start - 0.0005)
+            eat_anim = (
+                f'<animate attributeName="fill" '
+                f'values="{orig_fill};{orig_fill};{PAPER_DEEP};{PAPER_DEEP};{orig_fill};{orig_fill}" '
+                f'keyTimes="0;{f_hit:.5f};{f_eat:.5f};{f_respawn_start:.5f};{f_respawn_end:.5f};1" '
+                f'dur="{t_total:.3f}s" repeatCount="indefinite"/>'
+            )
+
         cells.append(
-            f'<rect class="p" style="animation-delay:{delay:.2f}s" x="{gx + col * step}" y="{gy + row * step}" '
-            f'width="{cell}" height="{cell}" rx="3" fill="{BLUE[level_for(c)]}">'
-            f'<title>{day["date"]}: {c} contribution{"s" if c != 1 else ""}</title></rect>'
+            f'<rect x="{gx + col * step}" y="{gy + row * step}" '
+            f'width="{cell}" height="{cell}" rx="3" fill="{orig_fill}">'
+            f'<title>{day["date"]}: {c} contribution{"s" if c != 1 else ""}</title>'
+            f'{eat_anim}</rect>'
         )
-    ncols = (len(days) + lead + 6) // 7
-    right = gx + ncols * step - 3
+
+    # --- 4. Render forward-facing snake (head leads, 5 body segments trail) ---
+    snake_svg = ""
+    if not is_static:
+        body_colors = ["#2f55ff", "#5b7bff", "#829cff", "#a8bcff", "#c8d3ff"]
+        segments = []
+
+        # Draw tail -> neck first so the head always renders on top
+        for s in range(len(body_colors), 0, -1):
+            lag = s * dt_cell
+            f_start = lag / t_total
+            f_end = (t_run + lag) / t_total
+            f_vis = min(f_start + 0.001, f_end - 0.001)
+            f_hide = min(f_end + 0.001, 0.9999)
+            size = max(7, cell - s * 0.7)
+            half = size / 2
+            segments.append(
+                f'<g opacity="0">'
+                f'<rect x="{-half:.1f}" y="{-half:.1f}" width="{size:.1f}" height="{size:.1f}" '
+                f'rx="3" fill="{body_colors[s - 1]}"/>'
+                f'<animateMotion path="{path_d}" dur="{t_total:.3f}s" calcMode="linear" '
+                f'keyPoints="0;0;1;1" keyTimes="0;{f_start:.5f};{f_end:.5f};1" '
+                f'rotate="auto" repeatCount="indefinite"/>'
+                f'<animate attributeName="opacity" values="0;0;1;1;0;0" '
+                f'keyTimes="0;{f_start:.5f};{f_vis:.5f};{f_end:.5f};{f_hide:.5f};1" '
+                f'dur="{t_total:.3f}s" repeatCount="indefinite"/>'
+                f'</g>'
+            )
+
+        # Head: drawn facing RIGHT (+X) so rotate="auto" always points forward
+        f_head_end = t_run / t_total
+        f_head_hide = min(f_head_end + 0.001, 0.9999)
+        head = (
+            f'<g opacity="1">'
+            # Flicking red tongue extending forward (+X)
+            f'<path d="M 6 0 L 10.5 0 M 9 0 L 11.5 -2 M 9 0 L 11.5 2" '
+            f'stroke="{STUDIO}" stroke-width="1.2" stroke-linecap="round" fill="none">'
+            f'<animate attributeName="opacity" values="1;0;1" dur="0.45s" repeatCount="indefinite"/>'
+            f'</path>'
+            # Head block
+            f'<rect x="-6.5" y="-6.5" width="13" height="13" rx="3.5" fill="#1a3be0"/>'
+            # Eyes on the front (+X) side
+            f'<circle cx="2.6" cy="-2.8" r="1.7" fill="#ffffff"/>'
+            f'<circle cx="2.6" cy="2.8" r="1.7" fill="#ffffff"/>'
+            f'<circle cx="3.2" cy="-2.8" r="0.85" fill="{INK}"/>'
+            f'<circle cx="3.2" cy="2.8" r="0.85" fill="{INK}"/>'
+            f'<animateMotion path="{path_d}" dur="{t_total:.3f}s" calcMode="linear" '
+            f'keyPoints="0;1;1" keyTimes="0;{f_head_end:.5f};1" '
+            f'rotate="auto" repeatCount="indefinite"/>'
+            f'<animate attributeName="opacity" values="1;1;0;0" '
+            f'keyTimes="0;{f_head_end:.5f};{f_head_hide:.5f};1" '
+            f'dur="{t_total:.3f}s" repeatCount="indefinite"/>'
+            f'</g>'
+        )
+        snake_svg = f'<g class="snake-layer">{"".join(segments)}{head}</g>'
+
+    # --- 5. Month labels & legend ---
     labels = "".join(
         f'<text x="{gx + col * step}" y="{gy + 7 * step + 16}" font-family="{MONO}" font-size="11" fill="{MUTED}">{m}</text>'
         for col, m in months if col < ncols - 12
@@ -428,114 +534,8 @@ def heatmap(data):
         f'<rect x="{legend_x + i * 14}" y="{gy + 7 * step + 6}" width="11" height="11" rx="2.5" fill="{c}"/>'
         for i, c in enumerate(BLUE)
     )
-    h = gy + 7 * step + 44
 
-    # ---- Interactive Snake Animation Design ---------------------------------
-    def pt(c, r):
-        return (gx + c * step + cell / 2, gy + r * step + cell / 2)
-
-    waypoints = [
-        (1, 1), (10, 1), (10, 4), (5, 4), (5, 6), (16, 6), (16, 2), (24, 2), (24, 0), (32, 0),
-        (32, 5), (40, 5), (40, 2), (47, 2), (47, 6), (52, 6), (52, 3), (45, 3), (45, 0), (36, 0),
-        (36, 3), (28, 3), (28, 6), (20, 6), (20, 1), (14, 1), (14, 3), (1, 3), (1, 1)
-    ]
-
-    path_cmds = []
-    dist = 0
-    for idx, wp in enumerate(waypoints):
-        px, py = pt(*wp)
-        if idx == 0:
-            path_cmds.append(f"M {px:.1f} {py:.1f}")
-        else:
-            prev_x, prev_y = pt(*waypoints[idx - 1])
-            dist += abs(px - prev_x) + abs(py - prev_y)
-            path_cmds.append(f"L {px:.1f} {py:.1f}")
-    path_d = " ".join(path_cmds) + " Z"
-
-    dur = 31.2  # 75px/s speed across 2340px grid path
-    dt = 0.20   # 15px step / 75px/s = 0.20s offset per cell
-
-    # Pulsing golden food targets along waypoints
-    food_coords = [(32, 0), (52, 6), (20, 6), (10, 4)]
-    food_elements = []
-    for fx, fy in [pt(*fc) for fc in food_coords]:
-        food_elements.append(
-            f'<g transform="translate({fx:.1f}, {fy:.1f})">'
-            f'<circle r="4.5" fill="{LEARN_COLOR}">'
-            f'<animate attributeName="r" values="3.5;5.2;3.5" dur="1.4s" repeatCount="indefinite"/>'
-            f'<animate attributeName="opacity" values="0.75;1;0.75" dur="1.4s" repeatCount="indefinite"/>'
-            f'</circle>'
-            f'<circle cx="1.2" cy="-1.2" r="1.3" fill="#ffffff" opacity="0.9"/>'
-            f'</g>'
-        )
-
-    # Snake body segments trailing the head
-    if os.environ.get("STATIC"):
-        # Show snake at a scenic waypoint in static screenshots
-        snake_svg = f"""
-<!-- Contribution Snake Preview -->
-<g>
-  {''.join(food_elements)}
-  <g transform="translate(620, 132)">
-    <circle cx="-60" cy="0" r="3.5" fill="#c8d3ff" opacity="0.6"/>
-    <rect x="-50" y="-5" width="10" height="10" rx="2.5" fill="#a8bcff" opacity="0.75"/>
-    <rect x="-35" y="-5.5" width="11" height="11" rx="2.8" fill="#829cff" opacity="0.85"/>
-    <rect x="-20" y="-5.75" width="11.5" height="11.5" rx="3" fill="#5b7bff" opacity="0.95"/>
-    <rect x="-5" y="-6" width="12" height="12" rx="3" fill="#2f55ff"/>
-    <g transform="translate(15, 0)">
-      <rect x="-6.5" y="-6.5" width="13" height="13" rx="3.5" fill="#1a3be0"/>
-      <circle cx="2.5" cy="-3" r="1.5" fill="#ffffff"/>
-      <circle cx="2.5" cy="3" r="1.5" fill="#ffffff"/>
-      <circle cx="3.2" cy="-3" r="0.8" fill="#111111"/>
-      <circle cx="3.2" cy="3" r="0.8" fill="#111111"/>
-      <path d="M 6.5 0 L 10 -1.5 M 6.5 0 L 10 1.5" stroke="#ef3b2d" stroke-width="1.2" stroke-linecap="round"/>
-    </g>
-  </g>
-</g>"""
-    else:
-        snake_svg = f"""
-<!-- Contribution Snake Animation -->
-<g class="f" {d(1.8)}>
-  {''.join(food_elements)}
-  <!-- Segment 5 (Tail Tip) -->
-  <g>
-    <animateMotion path="{path_d}" dur="{dur}s" begin="-{dt * 5:.2f}s" repeatCount="indefinite" rotate="auto"/>
-    <circle r="3.5" fill="#c8d3ff" opacity="0.6"/>
-  </g>
-  <!-- Segment 4 -->
-  <g>
-    <animateMotion path="{path_d}" dur="{dur}s" begin="-{dt * 4:.2f}s" repeatCount="indefinite" rotate="auto"/>
-    <rect x="-5" y="-5" width="10" height="10" rx="2.5" fill="#a8bcff" opacity="0.75"/>
-  </g>
-  <!-- Segment 3 -->
-  <g>
-    <animateMotion path="{path_d}" dur="{dur}s" begin="-{dt * 3:.2f}s" repeatCount="indefinite" rotate="auto"/>
-    <rect x="-5.5" y="-5.5" width="11" height="11" rx="2.8" fill="#829cff" opacity="0.85"/>
-  </g>
-  <!-- Segment 2 -->
-  <g>
-    <animateMotion path="{path_d}" dur="{dur}s" begin="-{dt * 2:.2f}s" repeatCount="indefinite" rotate="auto"/>
-    <rect x="-5.75" y="-5.75" width="11.5" height="11.5" rx="3" fill="#5b7bff" opacity="0.95"/>
-  </g>
-  <!-- Segment 1 -->
-  <g>
-    <animateMotion path="{path_d}" dur="{dur}s" begin="-{dt * 1:.2f}s" repeatCount="indefinite" rotate="auto"/>
-    <rect x="-6" y="-6" width="12" height="12" rx="3" fill="#2f55ff"/>
-  </g>
-  <!-- Snake Head with Eyes and Flicking Tongue -->
-  <g>
-    <animateMotion path="{path_d}" dur="{dur}s" begin="0s" repeatCount="indefinite" rotate="auto"/>
-    <rect x="-6.5" y="-6.5" width="13" height="13" rx="3.5" fill="#1a3be0"/>
-    <circle cx="2.5" cy="-3" r="1.5" fill="#ffffff"/>
-    <circle cx="2.5" cy="3" r="1.5" fill="#ffffff"/>
-    <circle cx="3.2" cy="-3" r="0.8" fill="#111111"/>
-    <circle cx="3.2" cy="3" r="0.8" fill="#111111"/>
-    <path d="M 6.5 0 L 10 -1.5 M 6.5 0 L 10 1.5" stroke="#ef3b2d" stroke-width="1.2" stroke-linecap="round">
-      <animate attributeName="opacity" values="0;1;0;1;0" dur="0.8s" repeatCount="indefinite"/>
-    </path>
-  </g>
-</g>
-"""
+    extra_css = "@media (prefers-reduced-motion: reduce){.snake-layer{display:none}}"
 
     body = f"""
 <rect width="{W}" height="{h}" rx="14" fill="{PAPER}"/>
@@ -544,12 +544,17 @@ def heatmap(data):
 {''.join(cells)}
 {snake_svg}
 <g class="f" {d(2.4)}>{labels}
-<text x="{legend_x - 8}" y="{gy + 7 * step + 16}" text-anchor="end" font-family="{MONO}" font-size="11" fill="{MUTED}">less</text>
-{legend}
+<text x="{legend_x - 8}" y="{gy + 7 * step + 16}" text-anchor="end" font-family="{MONO}" font-size="11" fill="{MUTED}">less</text>{legend}
 <text x="{legend_x + len(BLUE) * 14 + 2}" y="{gy + 7 * step + 16}" font-family="{MONO}" font-size="11" fill="{MUTED}">more</text></g>
 """
-    write("heatmap.svg", svg(W, h, body, ["serif", "serif-i", "mono"],
-                             f'Contribution graph: {data["total_contributions"]:,} contributions in the last year'))
+    write(
+        "heatmap.svg",
+        svg(
+            W, h, body, ["serif", "serif-i", "mono"],
+            f'Contribution graph: {data["total_contributions"]:,} contributions in the last year',
+            extra_css=extra_css,
+        ),
+    )
 
 
 def repo_stars(username):
