@@ -16,6 +16,7 @@ import base64
 import datetime
 import json
 import os
+import random
 import re
 from html import escape
 
@@ -397,6 +398,78 @@ def level_for(c):
     return 0 if c == 0 else 1 if c <= 5 else 2 if c <= 15 else 3 if c <= 30 else 4 if c <= 50 else 5
 
 
+def build_snake_route(ncols, nrows, active, seed=42):
+    """
+    Generate an organic, lifelike snake route with natural zig-zags,
+    coils, and dynamic S-curves covering the contribution calendar.
+    Every step is exactly 1 unit (15px) for strictly uniform speed.
+    """
+    rng = random.Random(seed)
+    route = []
+    c, r = 0, 0
+    route.append((c, r))
+    visited = {(c, r)}
+
+    # Forward pass: organic vertical/diagonal zig-zag across columns 0 -> ncols - 1
+    col = 0
+    going_down = True
+
+    while col < ncols:
+        target_r = nrows - 1 if going_down else 0
+        dr = 1 if target_r > r else -1
+
+        while r != target_r:
+            r += dr
+            route.append((col, r))
+            visited.add((col, r))
+
+            # Organic twist: side-step into adjacent active column or random detour
+            if rng.random() < 0.22 and 0 < col < ncols - 1:
+                side_c = col + (1 if (col + 1, r) in active or rng.random() < 0.55 else -1)
+                if 0 <= side_c < ncols:
+                    route.append((side_c, r))
+                    visited.add((side_c, r))
+                    if 0 <= r + dr < nrows:
+                        r += dr
+                        route.append((side_c, r))
+                        visited.add((side_c, r))
+                    route.append((col, r))
+
+        # Advance column
+        if col < ncols - 1:
+            step_cols = 1 if (col + 1, r) in active or rng.random() < 0.8 else 2
+            for _ in range(min(step_cols, ncols - 1 - col)):
+                col += 1
+                route.append((col, r))
+                visited.add((col, r))
+            going_down = not going_down
+        else:
+            break
+
+    # Return pass: loop smoothly back from ncols - 1 to 0 with counter-curves
+    target_return_r = 0 if r > nrows // 2 else nrows - 1
+    dr = 1 if target_return_r > r else -1
+    while r != target_return_r:
+        r += dr
+        route.append((col, r))
+        visited.add((col, r))
+
+    while col > 0:
+        col -= 1
+        route.append((col, r))
+        visited.add((col, r))
+        if rng.random() < 0.18 and 0 < r < nrows - 1:
+            r += 1 if rng.random() < 0.5 else -1
+            route.append((col, r))
+            visited.add((col, r))
+
+    while r != 0:
+        r += -1 if r > 0 else 1
+        route.append((col, r))
+
+    return route
+
+
 def heatmap(data):
     days = data["days"]
     first = datetime.date.fromisoformat(days[0]["date"])
@@ -407,30 +480,34 @@ def heatmap(data):
     h = gy + 7 * step + 44
     is_static = bool(os.environ.get("STATIC"))
 
-    # --- 1. Build serpentine (zig-zag) path across all 7 rows x ncols ---
-    # Even rows go left -> right; odd rows go right -> left.
-    # Every step (horizontal or row turn) is exactly `step` (15px), so
-    # calcMode="linear" gives strictly constant speed across every cell.
-    route = []
-    pos_to_idx = {}
-    for row in range(7):
-        cols = range(ncols) if row % 2 == 0 else range(ncols - 1, -1, -1)
-        for col in cols:
-            pos_to_idx[(col, row)] = len(route)
-            cx = gx + col * step + cell / 2
-            cy = gy + row * step + cell / 2
-            route.append((cx, cy))
+    # Map active contribution cells (food targets for the snake)
+    active_cells = set()
+    for i, day in enumerate(days):
+        k = i + lead
+        col, row = divmod(k, 7)
+        if day["count"] > 0:
+            active_cells.add((col, row))
 
-    path_d = f"M {route[0][0]:.1f} {route[0][1]:.1f} " + " ".join(
-        f"L {x:.1f} {y:.1f}" for x, y in route[1:]
+    # --- 1. Build organic serpentine (zig-zag + random) path ---
+    route = build_snake_route(ncols, 7, active_cells, seed=42)
+    pixel_route = [
+        (gx + c * step + cell / 2, gy + r * step + cell / 2) for c, r in route
+    ]
+    path_d = f"M {pixel_route[0][0]:.1f} {pixel_route[0][1]:.1f} " + " ".join(
+        f"L {x:.1f} {y:.1f}" for x, y in pixel_route[1:]
     )
 
-    # --- 2. Synchronized timing constants (all animations share T_total) ---
+    pos_to_idx = {}
+    for idx, cell_pt in enumerate(route):
+        if cell_pt not in pos_to_idx:
+            pos_to_idx[cell_pt] = idx
+
+    # --- 2. Synchronized timing constants (slower, natural snake speed) ---
     total_steps = len(route) - 1
-    dt_cell = 0.075                     # seconds per cell (~28s for 371 cells)
-    t_run = total_steps * dt_cell       # time for head to sweep the entire grid
+    dt_cell = 0.11                      # 0.11s per cell (~9 cells/sec: smooth, visible pace)
+    t_run = total_steps * dt_cell       # time for head to complete the sweep
     t_tail = 5 * dt_cell                # time for last body segment to finish
-    t_reset = t_tail + 2.2              # tail exit + respawn fade + brief pause
+    t_reset = t_tail + 2.5              # tail exit + respawn fade + brief pause
     t_total = t_run + t_reset
 
     f_respawn_start = (t_run + t_tail + 0.35) / t_total
@@ -450,11 +527,11 @@ def heatmap(data):
         orig_fill = BLUE[level_for(c)]
         eat_anim = ""
 
-        if c > 0 and not is_static:
+        if c > 0 and not is_static and (col, row) in pos_to_idx:
             idx = pos_to_idx[(col, row)]
             t_hit = idx * dt_cell
             f_hit = max(0.0001, t_hit / t_total)
-            f_eat = min((t_hit + 0.04) / t_total, f_respawn_start - 0.0005)
+            f_eat = min((t_hit + 0.05) / t_total, f_respawn_start - 0.0005)
             eat_anim = (
                 f'<animate attributeName="fill" '
                 f'values="{orig_fill};{orig_fill};{PAPER_DEEP};{PAPER_DEEP};{orig_fill};{orig_fill}" '
