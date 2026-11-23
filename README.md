@@ -1,79 +1,72 @@
 <div align="center">
 
 <h3><code>pranjal@github ~ $ ./contributions.sh</code></h3>
-<img src="./contrib-heatmap.svg" width="860" alt="Pranjal's GitHub contribution graph — auto-refreshed daily" />
+
+<img src="./contrib-heatmap.svg" width="860" alt="Pranjal's GitHub contribution graph, auto-refreshed daily" />
 
 <br><br>
 
 <h3><code>pranjal@github ~ $ whoami</code></h3>
+
 <table>
-<tr>
-<td valign="top"><img src="./pranjal-ascii.svg" width="370" alt="Pranjal Karan — ASCII portrait" /></td>
-<td valign="top"><img src="./info-card.svg" width="490" alt="Pranjal Karan — experience, stack, highlights" /></td>
-</tr>
+  <tr>
+    <td valign="top"><img src="./pranjal-ascii.svg" width="370" alt="Pranjal Karan - ASCII portrait" /></td>
+    <td valign="top"><img src="./info-card.svg" width="490" alt="Pranjal Karan - experience, stack, highlights" /></td>
+  </tr>
 </table>
+
+<br>
+
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=20&pause=1000&color=39D353&center=true&vCenter=true&width=700&lines=B.Tech+CSE+(Health+Informatics)+%7C+Class+of+2027;Building+HealthPulse+%26+HealConnect;Building+AI-Powered+FinTech+Systems;Diving+into+DSA+%2B+Applied+Machine+Learning;Open+to+SDE+Internships+2026%2F27" alt="Typing SVG"/>
 
 <br><br>
 
-<a href="https://instagram.com/pranjal__karan">
-<img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white"/>
-</a>
+<a href="https://www.linkedin.com/in/pranjal-karan-5aa879284/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"/></a>
+<a href="mailto:pranjalkaran2004@gmail.com"><img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white"/></a>
+<a href="https://instagram.com/pranjal__karan"><img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white"/></a>
 
-<a href="https://www.linkedin.com/in/pranjal-karan-5aa879284/">
-<img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"/>
-</a>
+<br><br>
 
-<a href="mailto:pranjalkaran2004@gmail.com">
-<img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white"/>
-</a>
+<img src="https://komarev.com/ghpvc/?username=Pranjal-k22&label=Profile%20Views&color=39d353&labelColor=0d1117&style=for-the-badge"/>
+<img src="https://img.shields.io/github/followers/Pranjal-k22?label=Followers&style=for-the-badge&color=39d353&labelColor=0d1117"/>
 
-<br/><br/>
+<br><br>
 
-<img src="https://komarev.com/ghpvc/?username=Pranjal-k22&label=Profile%20Views&color=7F00FF&style=for-the-badge"/>
-
-<img src="https://img.shields.io/github/followers/Pranjal-k22?label=Followers&style=for-the-badge&color=7F00FF"/>
-
-</div>
-
-<br/>
-
-<div align="center">
-
-[![About](https://img.shields.io/badge/01-ABOUT-7F00FF?style=for-the-badge&labelColor=black)](#-about-me)
-[![Projects](https://img.shields.io/badge/02-PROJECTS-2C5364?style=for-the-badge&labelColor=black)](#-featured-projects)
-[![Stack](https://img.shields.io/badge/03-TECH%20STACK-0F2027?style=for-the-badge&labelColor=black)](#%EF%B8%8F-tech-arsenal)
-[![Stats](https://img.shields.io/badge/04-ANALYTICS-B983FF?style=for-the-badge&labelColor=black)](#-github-analytics)
-[![Connect](https://img.shields.io/badge/05-CONNECT-E100FF?style=for-the-badge&labelColor=black)](#-lets-build-something)
+<code>
+<a href="#about">./about</a> &nbsp;·&nbsp;
+<a href="#projects">./projects</a> &nbsp;·&nbsp;
+<a href="#stack">./stack</a> &nbsp;·&nbsp;
+<a href="#snake">./snake</a> &nbsp;·&nbsp;
+<a href="#contact">./contact</a>
+</code>
 
 </div>
 
-<br/>
+<br>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
+---
 
-## 🧬 About Me
-
+<a id="about"></a>
 <div align="center">
 
-<h3>Full-stack engineer in the making, with a soft spot for healthcare and AI.</h3>
+<h3><code>pranjal@github ~ $ cat about.md</code></h3>
 
-<p>
-I build reliable systems and turn ideas into products people can actually use.<br/>
+</div>
+
+```text
+Full-stack engineer in the making, with a soft spot for healthcare and AI.
+
+I build reliable systems and turn ideas into products people can actually use.
 Currently shipping healthcare platforms, real-time systems, and LLM-powered tools.
-</p>
 
-<img src="https://img.shields.io/badge/Education-B.Tech%20CSE%20(Health%20Informatics)%20%E2%80%A2%20Class%20of%202027-7F00FF?style=for-the-badge&logo=googlescholar&logoColor=white"/>
-<br/>
-<img src="https://img.shields.io/badge/Open%20to-SDE%20Internships%20%E2%80%A2%202026%20%2F%202027-2C5364?style=for-the-badge&logo=target&logoColor=white"/>
-
-</div>
-
-<br/>
+education : B.Tech CSE (Health Informatics) - Class of 2027
+status    : open to SDE internships 2026 / 2027
+```
 
 <table width="100%">
 <tr>
 <td width="25%" valign="top" align="center">
-<h4>🎯 Focus</h4>
+<h4><code>$ focus</code></h4>
 <sub>
 Full-Stack Engineering<br/><br/>
 Backend Systems &amp; REST APIs<br/><br/>
@@ -82,7 +75,7 @@ Healthcare Technology
 </sub>
 </td>
 <td width="25%" valign="top" align="center">
-<h4>🔨 Building</h4>
+<h4><code>$ building</code></h4>
 <sub>
 Scalable apps with React, Next.js &amp; Node.js<br/><br/>
 Healthcare platforms &amp; real-time systems<br/><br/>
@@ -90,7 +83,7 @@ AI products integrating LLMs &amp; ML
 </sub>
 </td>
 <td width="25%" valign="top" align="center">
-<h4>📈 Strengthening</h4>
+<h4><code>$ strengthening</code></h4>
 <sub>
 Data Structures &amp; Algorithms<br/><br/>
 System Design &amp; Backend Architecture<br/><br/>
@@ -98,7 +91,7 @@ Applied Machine Learning
 </sub>
 </td>
 <td width="25%" valign="top" align="center">
-<h4>🔭 Exploring</h4>
+<h4><code>$ exploring</code></h4>
 <sub>
 Generative AI &amp; LLM apps<br/><br/>
 RAG &amp; AI agents<br/><br/>
@@ -108,16 +101,17 @@ Distributed &amp; real-time systems
 </tr>
 </table>
 
-<br/>
-
 <div align="center">
 
-> 💭 *"Build reliable systems, solve meaningful problems, and turn ideas into products people can actually use."*
+<br>
+
+> `$ fortune`
+> *"Build reliable systems, solve meaningful problems, and turn ideas into products people can actually use."*
 
 </div>
 
 <details>
-<summary>⚡ A few fun facts</summary>
+<summary><code>$ cat fun-facts.txt</code></summary>
 
 <br/>
 
@@ -128,12 +122,17 @@ Distributed &amp; real-time systems
 
 </details>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
+<br>
 
-## 🚀 Featured Projects
+---
 
+<a id="projects"></a>
 <div align="center">
-<sub>A selection of things I've built, from clinical platforms to real-time IoT and AI agents.</sub>
+
+<h3><code>pranjal@github ~ $ ls ./projects</code></h3>
+
+<sub><code>6 items - from clinical platforms to real-time IoT and AI agents</code></sub>
+
 </div>
 
 <br/>
@@ -142,9 +141,9 @@ Distributed &amp; real-time systems
 
 <!-- ROW 1 : titles -->
 <tr>
-<td width="33%" valign="top" align="center"><h3>🏥 HealthPulse</h3></td>
-<td width="33%" valign="top" align="center"><h3>📡 HealConnect</h3></td>
-<td width="33%" valign="top" align="center"><h3>💬 VibeChat</h3></td>
+<td width="33%" valign="top" align="center"><h3><code>healthpulse/</code></h3></td>
+<td width="33%" valign="top" align="center"><h3><code>healconnect/</code></h3></td>
+<td width="33%" valign="top" align="center"><h3><code>vibechat/</code></h3></td>
 </tr>
 
 <!-- ROW 1 : descriptions -->
@@ -201,22 +200,24 @@ Persistent conversations, authenticated users, Socket.io communication, optimize
 <!-- ROW 1 : buttons -->
 <tr>
 <td valign="top" align="center">
-<a href="https://www.health-pulse.app/"><img src="https://img.shields.io/badge/Live%20Demo-7F00FF?style=for-the-badge&logo=vercel&logoColor=white"/></a>
+<a href="https://www.health-pulse.app/"><img src="https://img.shields.io/badge/Live%20Demo-39d353?style=for-the-badge&logo=vercel&logoColor=black&labelColor=0d1117"/></a>
 <a href="https://github.com/Pranjal-k22/Healthcare-app-manager"><img src="https://img.shields.io/badge/Source-181717?style=for-the-badge&logo=github&logoColor=white"/></a>
 </td>
 <td valign="top" align="center">
+<!-- TODO: replace with the real HealConnect repo URL -->
 <a href="https://github.com/Pranjal-k22"><img src="https://img.shields.io/badge/Source-181717?style=for-the-badge&logo=github&logoColor=white"/></a>
 </td>
 <td valign="top" align="center">
+<!-- TODO: replace with the real VibeChat repo URL -->
 <a href="https://github.com/Pranjal-k22"><img src="https://img.shields.io/badge/Source-181717?style=for-the-badge&logo=github&logoColor=white"/></a>
 </td>
 </tr>
 
 <!-- ROW 2 : titles -->
 <tr>
-<td valign="top" align="center"><h3>🤖 AstroSync</h3></td>
-<td valign="top" align="center"><h3>💳 ReconAI</h3></td>
-<td valign="top" align="center"><h3>📂 More Projects</h3></td>
+<td valign="top" align="center"><h3><code>astrosync/</code></h3></td>
+<td valign="top" align="center"><h3><code>reconai/</code></h3></td>
+<td valign="top" align="center"><h3><code>more-projects/</code></h3></td>
 </tr>
 
 <!-- ROW 2 : descriptions -->
@@ -271,26 +272,31 @@ DSA practice, applied ML notebooks, and smaller experiments across web, AI, and 
 <!-- ROW 2 : buttons -->
 <tr>
 <td valign="top" align="center">
-<a href="https://astro-sync-liard.vercel.app/"><img src="https://img.shields.io/badge/Live%20Demo-7F00FF?style=for-the-badge&logo=vercel&logoColor=white"/></a>
+<a href="https://astro-sync-liard.vercel.app/"><img src="https://img.shields.io/badge/Live%20Demo-39d353?style=for-the-badge&logo=vercel&logoColor=black&labelColor=0d1117"/></a>
 <a href="https://github.com/Pranjal-k22/AstroSync"><img src="https://img.shields.io/badge/Source-181717?style=for-the-badge&logo=github&logoColor=white"/></a>
 </td>
 <td valign="top" align="center">
+<!-- TODO: replace with the real ReconAI repo URL -->
 <a href="https://github.com/Pranjal-k22"><img src="https://img.shields.io/badge/Source-181717?style=for-the-badge&logo=github&logoColor=white"/></a>
 </td>
 <td valign="top" align="center">
-<a href="https://github.com/Pranjal-k22?tab=repositories"><img src="https://img.shields.io/badge/All%20Repositories-2C5364?style=for-the-badge&logo=github&logoColor=white"/></a>
+<a href="https://github.com/Pranjal-k22?tab=repositories"><img src="https://img.shields.io/badge/All%20Repositories-181717?style=for-the-badge&logo=github&logoColor=white"/></a>
 </td>
 </tr>
 
 </table>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
+<br>
 
-## 🛠️ Tech Arsenal
+---
 
+<a id="stack"></a>
 <div align="center">
 
-### Languages
+<h3><code>pranjal@github ~ $ cat stack.txt</code></h3>
+
+<code>languages</code>
+<br><br>
 
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg" title="C" width="42"/>&nbsp;&nbsp;
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" title="C++" width="42"/>&nbsp;&nbsp;
@@ -299,9 +305,10 @@ DSA practice, applied ML notebooks, and smaller experiments across web, AI, and 
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dart/dart-original.svg" title="Dart" width="42"/>&nbsp;&nbsp;
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" title="HTML5" width="42"/>
 
-<br/><br/>
+<br><br>
 
-### Frameworks & Libraries
+<code>frameworks &amp; libraries</code>
+<br><br>
 
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" title="React" width="42"/>&nbsp;&nbsp;
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" title="Next.js" width="42"/>&nbsp;&nbsp;
@@ -313,9 +320,10 @@ DSA practice, applied ML notebooks, and smaller experiments across web, AI, and 
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" title="Vite" width="42"/>&nbsp;&nbsp;
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/opencv/opencv-original.svg" title="OpenCV" width="42"/>
 
-<br/><br/>
+<br><br>
 
-### Databases, Tools & Platforms
+<code>databases, tools &amp; platforms</code>
+<br><br>
 
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" title="MongoDB" width="42"/>&nbsp;&nbsp;
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" title="Postgres" width="42"/>&nbsp;&nbsp;
@@ -326,58 +334,47 @@ DSA practice, applied ML notebooks, and smaller experiments across web, AI, and 
 
 </div>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
+<br>
 
-## 📊 GitHub Analytics
+---
 
-### 🗓️ 3D Contribution Calendar
-
-<img width="100%" src="https://raw.githubusercontent.com/Pranjal-k22/Pranjal-k22/main/profile-3d-contrib/profile-night-rainbow.svg"/>
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
-
-## 🐍 Contribution Snake
-
+<a id="snake"></a>
 <div align="center">
+
+<h3><code>pranjal@github ~ $ ./snake.sh</code></h3>
 
 <img src="https://raw.githubusercontent.com/Pranjal-k22/Pranjal-k22/output/github-contribution-grid-snake.svg" alt="Snake animation"/>
 
-</div>
+<br><br>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
+<h3><code>pranjal@github ~ $ ./3d-contrib.sh</code></h3>
 
-## 💬 Quote of the Moment
-
-<div align="center">
-
-<img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=tokyonight"/>
+<img width="100%" src="https://raw.githubusercontent.com/Pranjal-k22/Pranjal-k22/main/profile-3d-contrib/profile-night-rainbow.svg" alt="3D contribution calendar"/>
 
 </div>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
+<br>
 
-## 📫 Let's Build Something
+---
 
+<a id="contact"></a>
 <div align="center">
 
-I'm always up for interesting conversations, collaborations, and internship opportunities.
+<h3><code>pranjal@github ~ $ mail -s "let's build something"</code></h3>
 
-Drop a message — I reply fast.
+<code>I'm always up for interesting conversations, collaborations, and internship opportunities.</code>
+<br>
+<code>Drop a message - I reply fast.</code>
 
-<br/><br/>
+<br><br>
 
-<a href="mailto:pranjalkaran2004@gmail.com">
-<img src="https://img.shields.io/badge/Say%20Hello-D14836?style=for-the-badge&logo=gmail&logoColor=white"/>
-</a>
+<a href="mailto:pranjalkaran2004@gmail.com"><img src="https://img.shields.io/badge/Say%20Hello-D14836?style=for-the-badge&logo=gmail&logoColor=white"/></a>
+<a href="https://www.linkedin.com/in/pranjal-karan-5aa879284/"><img src="https://img.shields.io/badge/Let's%20Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"/></a>
 
-<a href="https://www.linkedin.com/in/pranjal-karan-5aa879284/">
-<img src="https://img.shields.io/badge/Let's%20Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"/>
-</a>
+<br><br>
 
-<br/><br/>
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=14&pause=1000&color=39D353&center=true&vCenter=true&width=420&lines=Thanks+for+stopping+by!;pranjal%40github+%7E+%24+exit" alt="exit"/>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F2027,50:2C5364,100:7F00FF&height=150&section=footer"/>
-
-<sub>Thanks for stopping by! ⭐ this repo if you liked the vibe.</sub>
+<sub>⭐ this repo if you liked the vibe.</sub>
 
 </div>
