@@ -17,7 +17,7 @@ import sys
 import cv2
 import numpy as np
 from PIL import Image
-from rembg import remove
+from rembg import new_session, remove
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -40,7 +40,8 @@ if not os.path.exists(INP):
 print(f"Processing '{INP}' -> '{OUT}'...")
 
 # 1. cut out the subject
-cut = remove(Image.open(INP).convert("RGBA"))
+session = new_session("u2net")
+cut = remove(Image.open(INP).convert("RGBA"), session=session)
 rgb = np.array(cut.convert("RGB"))
 alpha = np.array(cut.split()[-1])                 # 0 = background
 

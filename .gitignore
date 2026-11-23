@@ -3,11 +3,11 @@
 __pycache__/
 *.pyc
 
-# Portrait sources (never commit raw photos)
-source-photo.jpg
-source-photo.jpeg
-source-photo.png
+# Portrait sources (never commit raw photos or models)
+source-photo.*
 source-prepped.png
+1.jpg
+*.onnx
 
 # Reference repo if cloned locally
 reference/

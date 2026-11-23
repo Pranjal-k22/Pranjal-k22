@@ -1,0 +1,6 @@
+# Portrait generation only (run locally, not needed by daily GitHub Actions workflow)
+pillow
+numpy
+opencv-python
+rembg[cpu]
+onnxruntime

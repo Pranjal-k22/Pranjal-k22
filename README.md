@@ -1,12 +1,19 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F2027,50:2C5364,100:7F00FF&height=250&section=header&text=Hi,%20I'm%20Pranjal%20Karan&fontSize=48&fontColor=ffffff&animation=fadeIn&fontAlignY=32&desc=Crafting%20scalable%20products%20%E2%80%A2%20Health%20Informatics%20%E2%80%A2%20Class%20of%202027&descAlignY=52&descSize=16"/>
+<h3><code>pranjal@github ~ $ ./contributions.sh</code></h3>
+<img src="./contrib-heatmap.svg" width="860" alt="Pranjal's GitHub contribution graph — auto-refreshed daily" />
 
-<br/>
+<br><br>
 
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=24&pause=1000&color=B983FF&center=true&vCenter=true&width=650&lines=B.Tech+CSE+(Health+Informatics)+Undergrad;Building+HealthPulse+%26+HealConnect;Building+AI-Powered+FinTech+Systems;Diving+into+DSA+%2B+Applied+Machine+Learning;Open+to+SDE+Internships+2026%2F27" alt="Typing SVG"/>
+<h3><code>pranjal@github ~ $ whoami</code></h3>
+<table>
+<tr>
+<td valign="top"><img src="./pranjal-ascii.svg" width="370" alt="Pranjal Karan — ASCII portrait" /></td>
+<td valign="top"><img src="./info-card.svg" width="490" alt="Pranjal Karan — experience, stack, highlights" /></td>
+</tr>
+</table>
 
-<br/><br/>
+<br><br>
 
 <a href="https://instagram.com/pranjal__karan">
 <img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white"/>
@@ -322,20 +329,6 @@ DSA practice, applied ML notebooks, and smaller experiments across web, AI, and 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
 
 ## 📊 GitHub Analytics
-
-<div align="center">
-
-<img height="165" src="https://github-readme-stats-azure-five-38.vercel.app/api?username=Pranjal-k22&show_icons=true&theme=tokyonight&hide_border=true&include_all_commits=true&count_private=true&rank_icon=github" alt="GitHub Stats"/>
-
-<img height="165" src="https://github-readme-stats-azure-five-38.vercel.app/api/top-langs/?username=Pranjal-k22&layout=compact&theme=tokyonight&hide_border=true" alt="Top Languages"/>
-
-<br/><br/>
-
-<img src="https://streak-stats.demolab.com/?user=Pranjal-k22&theme=tokyonight&hide_border=true" alt="GitHub Streak"/>
-
-</div>
-
-<br/>
 
 ### 🗓️ 3D Contribution Calendar
 
