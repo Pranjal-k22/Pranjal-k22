@@ -398,76 +398,135 @@ def level_for(c):
     return 0 if c == 0 else 1 if c <= 5 else 2 if c <= 15 else 3 if c <= 30 else 4 if c <= 50 else 5
 
 
-def build_snake_route(ncols, nrows, active, seed=42):
+def build_arcade_snake_route(active_cells, ncols, nrows, seed_key):
     """
-    Generate an organic, lifelike snake route with natural zig-zags,
-    coils, and dynamic S-curves covering the contribution calendar.
-    Every step is exactly 1 unit (15px) for strictly uniform speed.
+    Generate a randomized, strictly orthogonal (1-cell per step) arcade hunting
+    path that visits every active contribution cell at least once.
     """
-    rng = random.Random(seed)
-    route = []
-    c, r = 0, 0
-    route.append((c, r))
-    visited = {(c, r)}
+    import random
 
-    # Forward pass: organic vertical/diagonal zig-zag across columns 0 -> ncols - 1
-    col = 0
-    going_down = True
+    rng = random.Random(seed_key)
+    remaining = set(active_cells)
 
-    while col < ncols:
-        target_r = nrows - 1 if going_down else 0
-        dr = 1 if target_r > r else -1
+    # Edge case: if no contributions exist, do a short organic patrol
+    if not remaining:
+        return [(c, 3) for c in range(ncols)]
 
-        while r != target_r:
-            r += dr
-            route.append((col, r))
-            visited.add((col, r))
+    # Start on a random active cell near the left side of the board
+    leftmost = sorted(remaining, key=lambda p: (p[0], p[1]))
+    curr = rng.choice(leftmost[: max(1, min(6, len(leftmost)))])
+    remaining.discard(curr)
 
-            # Organic twist: side-step into adjacent active column or random detour
-            if rng.random() < 0.22 and 0 < col < ncols - 1:
-                side_c = col + (1 if (col + 1, r) in active or rng.random() < 0.55 else -1)
-                if 0 <= side_c < ncols:
-                    route.append((side_c, r))
-                    visited.add((side_c, r))
-                    if 0 <= r + dr < nrows:
-                        r += dr
-                        route.append((side_c, r))
-                        visited.add((side_c, r))
-                    route.append((col, r))
+    route = [curr]
+    last_dir = (1, 0)  # initial momentum (+X)
 
-        # Advance column
-        if col < ncols - 1:
-            step_cols = 1 if (col + 1, r) in active or rng.random() < 0.8 else 2
-            for _ in range(min(step_cols, ncols - 1 - col)):
-                col += 1
-                route.append((col, r))
-                visited.add((col, r))
-            going_down = not going_down
-        else:
-            break
+    while remaining:
+        # Pick from the 4 closest remaining active cells (Manhattan distance)
+        # for an organic, unpredictable arcade feel without cross-board thrashing
+        candidates = sorted(
+            remaining,
+            key=lambda p: abs(p[0] - curr[0]) + abs(p[1] - curr[1]),
+        )[:4]
+        target = rng.choice(candidates)
 
-    # Return pass: loop smoothly back from ncols - 1 to 0 with counter-curves
-    target_return_r = 0 if r > nrows // 2 else nrows - 1
-    dr = 1 if target_return_r > r else -1
-    while r != target_return_r:
-        r += dr
-        route.append((col, r))
-        visited.add((col, r))
+        # Walk orthogonally 1 cell at a time toward `target`
+        while curr != target:
+            dx = target[0] - curr[0]
+            dy = target[1] - curr[1]
 
-    while col > 0:
-        col -= 1
-        route.append((col, r))
-        visited.add((col, r))
-        if rng.random() < 0.18 and 0 < r < nrows - 1:
-            r += 1 if rng.random() < 0.5 else -1
-            route.append((col, r))
-            visited.add((col, r))
+            moves = []
+            if dx != 0:
+                moves.append((1 if dx > 0 else -1, 0))
+            if dy != 0:
+                moves.append((0, 1 if dy > 0 else -1))
 
-    while r != 0:
-        r += -1 if r > 0 else 1
-        route.append((col, r))
+            # Prefer continuing in the same direction (75%) for smooth arcade turns
+            if len(moves) == 2:
+                if last_dir in moves and rng.random() < 0.75:
+                    step_dir = last_dir
+                else:
+                    step_dir = rng.choice(moves)
+            else:
+                step_dir = moves[0]
+
+            curr = (curr[0] + step_dir[0], curr[1] + step_dir[1])
+            last_dir = step_dir
+            route.append(curr)
+            remaining.discard(curr)  # eat any active cell we pass through
 
     return route
+
+
+def build_score_counter(eat_events, total_contribs, dt_cell, t_total, f_respawn_end, x, y, is_static):
+    """
+    Build a repeating SMIL score counter locked to `t_total`.
+    Increments as each contribution square is eaten and resets when the board respawns.
+    """
+    static_text = (
+        f'<text class="score-static" x="{x}" y="{y}" text-anchor="end" '
+        f'font-family="{MONO}" font-size="12" letter-spacing="0.8" fill="{MUTED}">'
+        f'SCORE <tspan fill="{TECH}">{total_contribs:,}</tspan> / {total_contribs:,}</text>'
+    )
+
+    if is_static or not eat_events:
+        return static_text.replace('class="score-static" ', "")
+
+    # Sort by exact step index when the snake head first reaches each cell
+    eat_events.sort(key=lambda item: item[0])
+
+    # Build cumulative (timestamp, score) milestones
+    milestones = []
+    running = 0
+    for step_idx, count in eat_events:
+        running += count
+        milestones.append((step_idx * dt_cell, running))
+
+    # Cap at 80 frames to keep SVG file size small while preserving first & final exact total
+    max_frames = 80
+    if len(milestones) > max_frames:
+        stride = (len(milestones) - 1) / (max_frames - 1)
+        sampled = [milestones[round(i * stride)] for i in range(max_frames - 1)]
+        sampled.append(milestones[-1])
+        milestones = sampled
+
+    # Convert timestamps to strictly increasing normalized keyTimes within (0, f_respawn_end)
+    frames = []
+    prev_f = 0.0
+    for t_hit, score in milestones:
+        f = max(prev_f + 0.0002, min(t_hit / t_total, f_respawn_end - 0.0005))
+        if f > prev_f:
+            frames.append((f, score))
+            prev_f = f
+
+    if not frames:
+        return static_text.replace('class="score-static" ', "")
+
+    out = [static_text]
+
+    # Frame 0: visible from t=0 until first eat, and again after respawn until end of loop
+    f_first = frames[0][0]
+    out.append(
+        f'<text class="score-anim" x="{x}" y="{y}" text-anchor="end" '
+        f'font-family="{MONO}" font-size="12" letter-spacing="0.8" fill="{MUTED}" opacity="1">'
+        f'EATEN <tspan fill="{TECH}">0</tspan> / {total_contribs:,}'
+        f'<animate attributeName="opacity" calcMode="discrete" values="1;0;1;1" '
+        f'keyTimes="0;{f_first:.5f};{f_respawn_end:.5f};1" '
+        f'dur="{t_total:.3f}s" repeatCount="indefinite"/></text>'
+    )
+
+    # Intermediate & final score frames
+    for idx, (f_start, score) in enumerate(frames):
+        f_end = frames[idx + 1][0] if idx + 1 < len(frames) else f_respawn_end
+        out.append(
+            f'<text class="score-anim" x="{x}" y="{y}" text-anchor="end" '
+            f'font-family="{MONO}" font-size="12" letter-spacing="0.8" fill="{MUTED}" opacity="0">'
+            f'EATEN <tspan fill="{TECH}">{score:,}</tspan> / {total_contribs:,}'
+            f'<animate attributeName="opacity" calcMode="discrete" values="0;1;0;0" '
+            f'keyTimes="0;{f_start:.5f};{f_end:.5f};1" '
+            f'dur="{t_total:.3f}s" repeatCount="indefinite"/></text>'
+        )
+
+    return "".join(out)
 
 
 def heatmap(data):
@@ -480,41 +539,40 @@ def heatmap(data):
     h = gy + 7 * step + 44
     is_static = bool(os.environ.get("STATIC"))
 
-    # Map active contribution cells (food targets for the snake)
-    active_cells = set()
+    # --- 1. Map active contribution cells and build randomized arcade route ---
+    active_cells = []
     for i, day in enumerate(days):
-        k = i + lead
-        col, row = divmod(k, 7)
         if day["count"] > 0:
-            active_cells.add((col, row))
+            col, row = divmod(i + lead, 7)
+            active_cells.append((col, row))
 
-    # --- 1. Build organic serpentine (zig-zag + random) path ---
-    route = build_snake_route(ncols, 7, active_cells, seed=42)
-    pixel_route = [
-        (gx + c * step + cell / 2, gy + r * step + cell / 2) for c, r in route
-    ]
+    seed_key = f"{data.get('username', 'snake')}-{days[-1]['date']}"
+    grid_route = build_arcade_snake_route(active_cells, ncols, 7, seed_key)
+
+    first_hit = {}
+    pixel_route = []
+    for idx, (col, row) in enumerate(grid_route):
+        if (col, row) not in first_hit:
+            first_hit[(col, row)] = idx
+        pixel_route.append((gx + col * step + cell / 2, gy + row * step + cell / 2))
+
     path_d = f"M {pixel_route[0][0]:.1f} {pixel_route[0][1]:.1f} " + " ".join(
         f"L {x:.1f} {y:.1f}" for x, y in pixel_route[1:]
     )
 
-    pos_to_idx = {}
-    for idx, cell_pt in enumerate(route):
-        if cell_pt not in pos_to_idx:
-            pos_to_idx[cell_pt] = idx
-
-    # --- 2. Synchronized timing constants (slower, natural snake speed) ---
-    total_steps = len(route) - 1
-    dt_cell = 0.11                      # 0.11s per cell (~9 cells/sec: smooth, visible pace)
-    t_run = total_steps * dt_cell       # time for head to complete the sweep
-    t_tail = 5 * dt_cell                # time for last body segment to finish
-    t_reset = t_tail + 2.5              # tail exit + respawn fade + brief pause
+    # --- 2. Synchronized timing constants (auto-scaled to ~28s sweep) ---
+    total_steps = max(1, len(pixel_route) - 1)
+    dt_cell = max(0.055, min(0.11, 28.0 / total_steps))
+    t_run = total_steps * dt_cell
+    t_tail = 5 * dt_cell
+    t_reset = t_tail + 2.2
     t_total = t_run + t_reset
 
     f_respawn_start = (t_run + t_tail + 0.35) / t_total
     f_respawn_end = (t_total - 0.45) / t_total
 
-    # --- 3. Render contribution cells with synchronized eat & respawn SMIL ---
-    cells, months, seen = [], [], set()
+    # --- 3. Render contribution cells + collect eat events for score counter ---
+    cells, months, seen, eat_events = [], [], set(), []
     for i, day in enumerate(days):
         k = i + lead
         col, row = divmod(k, 7)
@@ -527,11 +585,12 @@ def heatmap(data):
         orig_fill = BLUE[level_for(c)]
         eat_anim = ""
 
-        if c > 0 and not is_static and (col, row) in pos_to_idx:
-            idx = pos_to_idx[(col, row)]
-            t_hit = idx * dt_cell
+        if c > 0 and not is_static and (col, row) in first_hit:
+            step_idx = first_hit[(col, row)]
+            eat_events.append((step_idx, c))
+            t_hit = step_idx * dt_cell
             f_hit = max(0.0001, t_hit / t_total)
-            f_eat = min((t_hit + 0.05) / t_total, f_respawn_start - 0.0005)
+            f_eat = min((t_hit + 0.04) / t_total, f_respawn_start - 0.0005)
             eat_anim = (
                 f'<animate attributeName="fill" '
                 f'values="{orig_fill};{orig_fill};{PAPER_DEEP};{PAPER_DEEP};{orig_fill};{orig_fill}" '
@@ -546,13 +605,24 @@ def heatmap(data):
             f'{eat_anim}</rect>'
         )
 
-    # --- 4. Render forward-facing snake (head leads, 5 body segments trail) ---
+    # --- 4. Build live SMIL score counter in the header ---
+    score_svg = build_score_counter(
+        eat_events=eat_events,
+        total_contribs=data["total_contributions"],
+        dt_cell=dt_cell,
+        t_total=t_total,
+        f_respawn_end=f_respawn_end,
+        x=right - 138,
+        y=60,
+        is_static=is_static,
+    )
+
+    # --- 5. Render forward-facing snake (head leads, 5 body segments trail) ---
     snake_svg = ""
-    if not is_static:
+    if not is_static and len(pixel_route) > 1:
         body_colors = ["#2f55ff", "#5b7bff", "#829cff", "#a8bcff", "#c8d3ff"]
         segments = []
 
-        # Draw tail -> neck first so the head always renders on top
         for s in range(len(body_colors), 0, -1):
             lag = s * dt_cell
             f_start = lag / t_total
@@ -574,19 +644,15 @@ def heatmap(data):
                 f'</g>'
             )
 
-        # Head: drawn facing RIGHT (+X) so rotate="auto" always points forward
         f_head_end = t_run / t_total
         f_head_hide = min(f_head_end + 0.001, 0.9999)
         head = (
             f'<g opacity="1">'
-            # Flicking red tongue extending forward (+X)
             f'<path d="M 6 0 L 10.5 0 M 9 0 L 11.5 -2 M 9 0 L 11.5 2" '
             f'stroke="{STUDIO}" stroke-width="1.2" stroke-linecap="round" fill="none">'
             f'<animate attributeName="opacity" values="1;0;1" dur="0.45s" repeatCount="indefinite"/>'
             f'</path>'
-            # Head block
             f'<rect x="-6.5" y="-6.5" width="13" height="13" rx="3.5" fill="#1a3be0"/>'
-            # Eyes on the front (+X) side
             f'<circle cx="2.6" cy="-2.8" r="1.7" fill="#ffffff"/>'
             f'<circle cx="2.6" cy="2.8" r="1.7" fill="#ffffff"/>'
             f'<circle cx="3.2" cy="-2.8" r="0.85" fill="{INK}"/>'
@@ -601,7 +667,7 @@ def heatmap(data):
         )
         snake_svg = f'<g class="snake-layer">{"".join(segments)}{head}</g>'
 
-    # --- 5. Month labels & legend ---
+    # --- 6. Month labels & legend ---
     labels = "".join(
         f'<text x="{gx + col * step}" y="{gy + 7 * step + 16}" font-family="{MONO}" font-size="11" fill="{MUTED}">{m}</text>'
         for col, m in months if col < ncols - 12
@@ -612,12 +678,21 @@ def heatmap(data):
         for i, c in enumerate(BLUE)
     )
 
-    extra_css = "@media (prefers-reduced-motion: reduce){.snake-layer{display:none}}"
+    extra_css = (
+        ".score-static{display:none}"
+        "@media (prefers-reduced-motion: reduce){"
+        ".snake-layer,.score-anim{display:none}"
+        ".score-static{display:inline}}"
+    )
 
     body = f"""
 <rect width="{W}" height="{h}" rx="14" fill="{PAPER}"/>
 <text class="r" {d(0.8)} x="42" y="62" font-family="{SERIF}" font-size="34" fill="{INK}">Every day, <tspan font-style="italic" fill="{TECH}">in blue</tspan></text>
-<text class="f" {d(0.8)} x="{right}" y="60" text-anchor="end" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">SNAKE RUN · REFRESHED DAILY</text>
+<g class="f" {d(0.8)}>
+  {score_svg}
+  <text x="{right - 126}" y="60" text-anchor="middle" font-family="{MONO}" font-size="12" fill="{RULE}">·</text>
+  <text x="{right}" y="60" text-anchor="end" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">REFRESHED DAILY</text>
+</g>
 {''.join(cells)}
 {snake_svg}
 <g class="f" {d(2.4)}>{labels}
