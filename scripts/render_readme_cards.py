@@ -560,9 +560,9 @@ def heatmap(data):
         f"L {x:.1f} {y:.1f}" for x, y in pixel_route[1:]
     )
 
-    # --- 2. Synchronized timing constants (auto-scaled to ~28s sweep) ---
+    # --- 2. Synchronized timing constants (relaxed ~52s sweep, ~9.5 cells/sec) ---
     total_steps = max(1, len(pixel_route) - 1)
-    dt_cell = max(0.055, min(0.11, 28.0 / total_steps))
+    dt_cell = max(0.095, min(0.13, 52.0 / total_steps))
     t_run = total_steps * dt_cell
     t_tail = 5 * dt_cell
     t_reset = t_tail + 2.2
