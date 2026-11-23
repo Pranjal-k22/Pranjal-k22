@@ -10,7 +10,7 @@
 
 <table>
   <tr>
-    <td valign="top"><img src="./pranjal-ascii.svg" width="370" alt="Pranjal Karan - ASCII portrait" /></td>
+    <td valign="top"><img src="./source-prepped.png" width="370" alt="Pranjal Karan" /></td>
     <td valign="top"><img src="./info-card.svg" width="490" alt="Pranjal Karan - experience, stack, highlights" /></td>
   </tr>
 </table>

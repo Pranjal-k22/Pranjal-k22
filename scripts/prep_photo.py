@@ -24,7 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 def find_input_file(arg_path=None):
     if arg_path:
         return arg_path
-    for candidate in ["source-photo.jpg", "source-photo.png", "source-photo.jpeg"]:
+    for candidate in ["img2.png", "img2.jpg", "img-new.jpg", "img-new.png", "source-img.png", "source-img.jpg", "source-photo.jpg", "source-photo.png", "source-photo.jpeg"]:
         p = os.path.join(HERE, "..", candidate)
         if os.path.isfile(p):
             return p
