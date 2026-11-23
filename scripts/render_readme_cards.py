@@ -24,6 +24,7 @@ ROOT = os.path.join(HERE, "..")
 DATA = os.path.join(ROOT, "data", "contributions.json")
 OUT = os.path.join(ROOT, "cards")
 FONTS = os.path.join(ROOT, "fonts")
+PORTRAIT = os.path.join(OUT, "portrait.png")
 
 # ---- Personalization Tokens (Pranjal Karan) ---------------------------------
 FIRST_NAME = "Pranjal"
@@ -139,7 +140,7 @@ def svg(w, h, body, fonts, label, extra_css="", left=0, right=0, bottom=BOTTOM):
     if os.environ.get("STATIC"):
         css += ".r,.f,.g,.p,.live,.n,.nu,.ti,.sl,.ai,.ro{animation:none!important;opacity:1!important;transform:none!important}.sh,.rg{display:none}"
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{w_total:.3f}" height="{h_total}" viewBox="0 0 {w_total:.3f} {h_total}" '
+        f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{w_total:.3f}" height="{h_total}" viewBox="0 0 {w_total:.3f} {h_total}" '
         f'role="img" aria-label="{escape(label)}"><title>{escape(label)}</title>'
         f"<style>{css}</style>{body}</svg>"
     )
@@ -174,9 +175,46 @@ def text_lines(x, y, lines, lh, attrs):
     )
 
 
-# ---- 1 · Hero Card (Modern Typographic + Tech Terminal Layout) ---------------
+# ---- 1 · Hero Card (Modern Editorial Layout with Transparent Cutout) ---------
 def hero():
     h = 420
+    portrait_svg = ""
+    if os.path.exists(PORTRAIT):
+        with open(PORTRAIT, "rb") as f:
+            b64_data = base64.b64encode(f.read()).decode("ascii")
+        portrait_svg = f"""
+<!-- Right Column: Illustrated Cutout Portrait -->
+<g class="r" {d(0.35)}>
+  <image x="535" y="20" width="280" height="385"
+         href="data:image/png;base64,{b64_data}"
+         xlink:href="data:image/png;base64,{b64_data}"
+         preserveAspectRatio="xMidYMid meet"/>
+</g>"""
+    else:
+        # Fallback terminal box if portrait image is not found
+        portrait_svg = f"""
+<g class="r" {d(0.4)} transform="translate(510, 48)">
+  <rect width="322" height="324" rx="12" fill="{PAPER_DEEP}" stroke="{RULE}" stroke-width="1"/>
+  <circle cx="20" cy="22" r="4.5" fill="#ff5f56"/>
+  <circle cx="36" cy="22" r="4.5" fill="#ffbd2e"/>
+  <circle cx="52" cy="22" r="4.5" fill="#27c93f"/>
+  <text x="161" y="26" text-anchor="middle" font-family="{MONO}" font-size="11" fill="{MUTED}">profile.config.ts</text>
+  <line x1="0" y1="42" x2="322" y2="42" stroke="{RULE}" stroke-width="1"/>
+  <g font-family="{MONO}" font-size="12">
+    <text x="20" y="74" fill="{MUTED}">const <tspan fill="{TECH}">developer</tspan> = &#123;</text>
+    <text x="36" y="104" fill="{MUTED}">focus: <tspan fill="{INK}">"Health &amp; AI Systems"</tspan>,</text>
+    <text x="36" y="134" fill="{MUTED}">stack: [<tspan fill="{STUDIO}">"Next.js"</tspan>, <tspan fill="{TECH}">"FastAPI"</tspan>, <tspan fill="{INK}">"Node"</tspan>],</text>
+    <text x="36" y="164" fill="{MUTED}">status: <tspan fill="{TECH}">"Internships 26/27"</tspan>,</text>
+    <text x="36" y="194" fill="{MUTED}">class: <tspan fill="{INK}">"B.Tech CSE '27"</tspan></text>
+    <text x="20" y="224" fill="{MUTED}">&#125;;</text>
+  </g>
+  <g class="f" {d(0.9)} transform="translate(20, 252)">
+    <rect width="282" height="48" rx="8" fill="{PAPER}" stroke="{RULE}" stroke-width="1"/>
+    <circle class="live" cx="20" cy="24" r="4" fill="{TECH}"/>
+    <text x="36" y="28" font-family="{MONO}" font-size="11" fill="{INK_SOFT}">Shipping healthcare &amp; AI products</text>
+  </g>
+</g>"""
+
     body = f"""
 <defs>
   <linearGradient id="shine" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="600" y2="0">
@@ -201,36 +239,10 @@ def hero():
 </g>
 <g class="f" {d(0.8)}>
   <text x="48" y="396" font-family="{MONO}" font-size="13" fill="{INK}">{WEBSITE_DISPLAY}</text>
-  <text class="nu" x="220" y="396" font-family="{MONO}" font-size="13" fill="{TECH}">&#8599;</text>
+  <text class="nu" x="224" y="396" font-family="{MONO}" font-size="13" fill="{TECH}">&#8599;</text>
 </g>
 
-<!-- Right Column: Sleek Tech Terminal Box -->
-<g class="r" {d(0.4)} transform="translate(510, 48)">
-  <rect width="322" height="324" rx="12" fill="{PAPER_DEEP}" stroke="{RULE}" stroke-width="1"/>
-  <!-- Terminal Title Bar -->
-  <circle cx="20" cy="22" r="4.5" fill="#ff5f56"/>
-  <circle cx="36" cy="22" r="4.5" fill="#ffbd2e"/>
-  <circle cx="52" cy="22" r="4.5" fill="#27c93f"/>
-  <text x="161" y="26" text-anchor="middle" font-family="{MONO}" font-size="11" fill="{MUTED}">profile.config.ts</text>
-  <line x1="0" y1="42" x2="322" y2="42" stroke="{RULE}" stroke-width="1"/>
-
-  <!-- Code Snippet -->
-  <g font-family="{MONO}" font-size="12">
-    <text x="20" y="74" fill="{MUTED}">const <tspan fill="{TECH}">developer</tspan> = &#123;</text>
-    <text x="36" y="104" fill="{MUTED}">focus: <tspan fill="{INK}">"Health &amp; AI Systems"</tspan>,</text>
-    <text x="36" y="134" fill="{MUTED}">stack: [<tspan fill="{STUDIO}">"Next.js"</tspan>, <tspan fill="{TECH}">"FastAPI"</tspan>, <tspan fill="{INK}">"Node"</tspan>],</text>
-    <text x="36" y="164" fill="{MUTED}">status: <tspan fill="{TECH}">"Internships 26/27"</tspan>,</text>
-    <text x="36" y="194" fill="{MUTED}">class: <tspan fill="{INK}">"B.Tech CSE '27"</tspan></text>
-    <text x="20" y="224" fill="{MUTED}">&#125;;</text>
-  </g>
-
-  <!-- Live Status Highlight Pill -->
-  <g class="f" {d(0.9)} transform="translate(20, 252)">
-    <rect width="282" height="48" rx="8" fill="{PAPER}" stroke="{RULE}" stroke-width="1"/>
-    <circle class="live" cx="20" cy="24" r="4" fill="{TECH}"/>
-    <text x="36" y="28" font-family="{MONO}" font-size="11" fill="{INK_SOFT}">Shipping healthcare &amp; AI products</text>
-  </g>
-</g>
+{portrait_svg}
 """
     write("hero.svg", svg(W, h, body, ["serif", "serif-i", "sans", "mono"],
                           f"{FIRST_NAME} {LAST_NAME} - {ROLE_BADGE}"))
