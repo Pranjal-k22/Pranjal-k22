@@ -1,0 +1,13 @@
+# Python environment
+.venv/
+__pycache__/
+*.pyc
+
+# Portrait sources (never commit raw photos)
+source-photo.jpg
+source-photo.jpeg
+source-photo.png
+source-prepped.png
+
+# Reference repo if cloned locally
+reference/
