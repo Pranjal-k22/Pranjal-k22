@@ -540,9 +540,7 @@ def heatmap(data):
     body = f"""
 <rect width="{W}" height="{h}" rx="14" fill="{PAPER}"/>
 <text class="r" {d(0.8)} x="42" y="62" font-family="{SERIF}" font-size="34" fill="{INK}">Every day, <tspan font-style="italic" fill="{TECH}">in blue</tspan></text>
-<g class="f" {d(0.8)} transform="translate({right}, 60)">
-  <text text-anchor="end" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">🐍 SNAKE RUN · REFRESHED DAILY</text>
-</g>
+<text class="f" {d(0.8)} x="{right}" y="60" text-anchor="end" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">SNAKE RUN · REFRESHED DAILY</text>
 {''.join(cells)}
 {snake_svg}
 <g class="f" {d(2.4)}>{labels}
