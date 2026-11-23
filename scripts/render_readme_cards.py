@@ -429,11 +429,122 @@ def heatmap(data):
         for i, c in enumerate(BLUE)
     )
     h = gy + 7 * step + 44
+
+    # ---- Interactive Snake Animation Design ---------------------------------
+    def pt(c, r):
+        return (gx + c * step + cell / 2, gy + r * step + cell / 2)
+
+    waypoints = [
+        (1, 1), (10, 1), (10, 4), (5, 4), (5, 6), (16, 6), (16, 2), (24, 2), (24, 0), (32, 0),
+        (32, 5), (40, 5), (40, 2), (47, 2), (47, 6), (52, 6), (52, 3), (45, 3), (45, 0), (36, 0),
+        (36, 3), (28, 3), (28, 6), (20, 6), (20, 1), (14, 1), (14, 3), (1, 3), (1, 1)
+    ]
+
+    path_cmds = []
+    dist = 0
+    for idx, wp in enumerate(waypoints):
+        px, py = pt(*wp)
+        if idx == 0:
+            path_cmds.append(f"M {px:.1f} {py:.1f}")
+        else:
+            prev_x, prev_y = pt(*waypoints[idx - 1])
+            dist += abs(px - prev_x) + abs(py - prev_y)
+            path_cmds.append(f"L {px:.1f} {py:.1f}")
+    path_d = " ".join(path_cmds) + " Z"
+
+    dur = 31.2  # 75px/s speed across 2340px grid path
+    dt = 0.20   # 15px step / 75px/s = 0.20s offset per cell
+
+    # Pulsing golden food targets along waypoints
+    food_coords = [(32, 0), (52, 6), (20, 6), (10, 4)]
+    food_elements = []
+    for fx, fy in [pt(*fc) for fc in food_coords]:
+        food_elements.append(
+            f'<g transform="translate({fx:.1f}, {fy:.1f})">'
+            f'<circle r="4.5" fill="{LEARN_COLOR}">'
+            f'<animate attributeName="r" values="3.5;5.2;3.5" dur="1.4s" repeatCount="indefinite"/>'
+            f'<animate attributeName="opacity" values="0.75;1;0.75" dur="1.4s" repeatCount="indefinite"/>'
+            f'</circle>'
+            f'<circle cx="1.2" cy="-1.2" r="1.3" fill="#ffffff" opacity="0.9"/>'
+            f'</g>'
+        )
+
+    # Snake body segments trailing the head
+    if os.environ.get("STATIC"):
+        # Show snake at a scenic waypoint in static screenshots
+        snake_svg = f"""
+<!-- Contribution Snake Preview -->
+<g>
+  {''.join(food_elements)}
+  <g transform="translate(620, 132)">
+    <circle cx="-60" cy="0" r="3.5" fill="#c8d3ff" opacity="0.6"/>
+    <rect x="-50" y="-5" width="10" height="10" rx="2.5" fill="#a8bcff" opacity="0.75"/>
+    <rect x="-35" y="-5.5" width="11" height="11" rx="2.8" fill="#829cff" opacity="0.85"/>
+    <rect x="-20" y="-5.75" width="11.5" height="11.5" rx="3" fill="#5b7bff" opacity="0.95"/>
+    <rect x="-5" y="-6" width="12" height="12" rx="3" fill="#2f55ff"/>
+    <g transform="translate(15, 0)">
+      <rect x="-6.5" y="-6.5" width="13" height="13" rx="3.5" fill="#1a3be0"/>
+      <circle cx="2.5" cy="-3" r="1.5" fill="#ffffff"/>
+      <circle cx="2.5" cy="3" r="1.5" fill="#ffffff"/>
+      <circle cx="3.2" cy="-3" r="0.8" fill="#111111"/>
+      <circle cx="3.2" cy="3" r="0.8" fill="#111111"/>
+      <path d="M 6.5 0 L 10 -1.5 M 6.5 0 L 10 1.5" stroke="#ef3b2d" stroke-width="1.2" stroke-linecap="round"/>
+    </g>
+  </g>
+</g>"""
+    else:
+        snake_svg = f"""
+<!-- Contribution Snake Animation -->
+<g class="f" {d(1.8)}>
+  {''.join(food_elements)}
+  <!-- Segment 5 (Tail Tip) -->
+  <g>
+    <animateMotion path="{path_d}" dur="{dur}s" begin="-{dt * 5:.2f}s" repeatCount="indefinite" rotate="auto"/>
+    <circle r="3.5" fill="#c8d3ff" opacity="0.6"/>
+  </g>
+  <!-- Segment 4 -->
+  <g>
+    <animateMotion path="{path_d}" dur="{dur}s" begin="-{dt * 4:.2f}s" repeatCount="indefinite" rotate="auto"/>
+    <rect x="-5" y="-5" width="10" height="10" rx="2.5" fill="#a8bcff" opacity="0.75"/>
+  </g>
+  <!-- Segment 3 -->
+  <g>
+    <animateMotion path="{path_d}" dur="{dur}s" begin="-{dt * 3:.2f}s" repeatCount="indefinite" rotate="auto"/>
+    <rect x="-5.5" y="-5.5" width="11" height="11" rx="2.8" fill="#829cff" opacity="0.85"/>
+  </g>
+  <!-- Segment 2 -->
+  <g>
+    <animateMotion path="{path_d}" dur="{dur}s" begin="-{dt * 2:.2f}s" repeatCount="indefinite" rotate="auto"/>
+    <rect x="-5.75" y="-5.75" width="11.5" height="11.5" rx="3" fill="#5b7bff" opacity="0.95"/>
+  </g>
+  <!-- Segment 1 -->
+  <g>
+    <animateMotion path="{path_d}" dur="{dur}s" begin="-{dt * 1:.2f}s" repeatCount="indefinite" rotate="auto"/>
+    <rect x="-6" y="-6" width="12" height="12" rx="3" fill="#2f55ff"/>
+  </g>
+  <!-- Snake Head with Eyes and Flicking Tongue -->
+  <g>
+    <animateMotion path="{path_d}" dur="{dur}s" begin="0s" repeatCount="indefinite" rotate="auto"/>
+    <rect x="-6.5" y="-6.5" width="13" height="13" rx="3.5" fill="#1a3be0"/>
+    <circle cx="2.5" cy="-3" r="1.5" fill="#ffffff"/>
+    <circle cx="2.5" cy="3" r="1.5" fill="#ffffff"/>
+    <circle cx="3.2" cy="-3" r="0.8" fill="#111111"/>
+    <circle cx="3.2" cy="3" r="0.8" fill="#111111"/>
+    <path d="M 6.5 0 L 10 -1.5 M 6.5 0 L 10 1.5" stroke="#ef3b2d" stroke-width="1.2" stroke-linecap="round">
+      <animate attributeName="opacity" values="0;1;0;1;0" dur="0.8s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</g>
+"""
+
     body = f"""
 <rect width="{W}" height="{h}" rx="14" fill="{PAPER}"/>
 <text class="r" {d(0.8)} x="42" y="62" font-family="{SERIF}" font-size="34" fill="{INK}">Every day, <tspan font-style="italic" fill="{TECH}">in blue</tspan></text>
-<text class="f" {d(0.8)} x="{right}" y="60" text-anchor="end" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">REFRESHED DAILY</text>
+<g class="f" {d(0.8)} transform="translate({right}, 60)">
+  <text text-anchor="end" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">🐍 SNAKE RUN · REFRESHED DAILY</text>
+</g>
 {''.join(cells)}
+{snake_svg}
 <g class="f" {d(2.4)}>{labels}
 <text x="{legend_x - 8}" y="{gy + 7 * step + 16}" text-anchor="end" font-family="{MONO}" font-size="11" fill="{MUTED}">less</text>
 {legend}
