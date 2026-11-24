@@ -38,14 +38,49 @@ if not os.path.exists(INP):
 print(f"Processing '{INP}' -> '{OUT}'...")
 
 if os.path.basename(INP).startswith("img4"):
-    # Direct illustration mode: preserve original artwork intact (no rembg/cropping)
-    raw = Image.open(INP)
+    # Precise transparent PNG mode: floodfill outer background so complete person on the rock is kept
+    raw = Image.open(INP).convert("RGB")
+    arr = np.array(raw)
+    h_img, w_img, _ = arr.shape
+    gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
+
+    is_white = (gray >= 248).astype(np.uint8)
+    flood = is_white.copy()
+    mask = np.zeros((h_img + 2, w_img + 2), np.uint8)
+
+    for x in range(0, w_img):
+        if flood[0, x] == 1:
+            cv2.floodFill(flood, mask, (x, 0), 2)
+    for y in range(0, h_img):
+        if flood[y, 0] == 1:
+            cv2.floodFill(flood, mask, (0, y), 2)
+        if flood[y, w_img - 1] == 1:
+            cv2.floodFill(flood, mask, (w_img - 1, y), 2)
+
+    outer_bg = (flood == 2)
+    alpha = np.where(outer_bg, 0, 255).astype(np.uint8)
+
+    # Edge anti-aliasing feather
+    dist_bg = cv2.distanceTransform(outer_bg.astype(np.uint8), cv2.DIST_L2, 3)
+    dist_fg = cv2.distanceTransform((~outer_bg).astype(np.uint8), cv2.DIST_L2, 3)
+    edge_zone = (dist_bg < 2.0) & (dist_fg < 2.0)
+    for y_idx, x_idx in zip(*np.where(edge_zone)):
+        brightness = gray[y_idx, x_idx]
+        if brightness > 230:
+            fade = max(0.0, min(1.0, (255 - brightness) / 25.0))
+            alpha[y_idx, x_idx] = int(fade * 255)
+
+    rgba = np.dstack([arr, alpha])
+    res_img = Image.fromarray(rgba, mode="RGBA")
+    bbox = res_img.getbbox()
+    cropped = res_img.crop(bbox)
+
     target_h = 770
-    target_w = int(raw.width * (target_h / raw.height))
-    resized = raw.resize((target_w, target_h), Image.Resampling.LANCZOS)
+    target_w = int(cropped.width * (target_h / cropped.height))
+    resized = cropped.resize((target_w, target_h), Image.Resampling.LANCZOS)
     os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
     resized.save(OUT, "PNG", optimize=True)
-    print(f"wrote {OUT} directly from illustration ({resized.size[0]}x{resized.size[1]}, {os.path.getsize(OUT)} bytes)")
+    print(f"wrote transparent cutout with complete rock to {OUT} ({resized.size[0]}x{resized.size[1]}, {os.path.getsize(OUT)} bytes)")
     sys.exit(0)
 
 # 1. cut out the subject
