@@ -279,6 +279,9 @@ def tile(name, label, color, on, num, word, blurb, delay, pos):
         f'font-size="14" fill="{on}" opacity=".92">{escape(l)}</text>'
         for i, l in enumerate(lines)
     )
+    total_len = len(f"{num} {word}")
+    font_size = 36 if total_len > 12 else 40 if total_len > 10 else 44
+    y_pos = 110 if font_size < 40 else 112
     body = f"""
 <defs>
   <clipPath id="card"><rect width="{TILE_W}" height="{TILE_H}" rx="14"/></clipPath>
@@ -295,7 +298,7 @@ def tile(name, label, color, on, num, word, blurb, delay, pos):
   <text class="sl" {d(delay + 0.35)} x="24" y="38" font-family="{MONO}" font-size="12" letter-spacing="1.2" fill="{on}">{label}</text>
   <g class="ai" {d(delay + 0.5)}><text class="n" style="animation-delay:{delay + 1.3:.2f}s" x="250" y="38" font-family="{MONO}" font-size="14" fill="{on}">&#8594;</text></g>
   <g clip-path="url(#slot)"><g class="ro" {d(delay + 0.45)}>
-    {count_up(num, word, 22, 112, f'font-family="{SERIF}" font-size="44" fill="{on}"', delay + 0.45)}
+    {count_up(num, word, 22, y_pos, f'font-family="{SERIF}" font-size="{font_size}" fill="{on}"', delay + 0.45)}
   </g></g>
   {blurb_svg}
 </g>
@@ -712,10 +715,14 @@ def heatmap(data):
 def repo_stars(username):
     """Fetch live star counts from GitHub REST API (gracefully fallback if offline)."""
     stars = {}
+    headers = {"User-Agent": "profile-readme-bot/1.0"}
+    token = os.environ.get("GITHUB_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
     try:
         import requests
         for name, *_ in REPOS:
-            r = requests.get(f"https://api.github.com/repos/{username}/{name}", timeout=10)
+            r = requests.get(f"https://api.github.com/repos/{username}/{name}", headers=headers, timeout=10)
             if r.ok:
                 stars[name] = r.json().get("stargazers_count", 0)
     except Exception as e:
@@ -730,9 +737,19 @@ if __name__ == "__main__":
     data = json.load(open(DATA, encoding="utf-8"))
     username = data.get("username", "Pranjal-k22")
 
+    # Dynamic metrics from live scraped contribution & profile data
+    total_contribs = data.get("total_contributions", 1400)
+    brand_num = f"{total_contribs / 1000:.1f}K+" if total_contribs >= 1000 else f"{total_contribs:,}+"
+    active_days = data.get("active_days", 123)
+    brand_desc = f"Year-round shipping across {active_days} active commit days in the last year."
+
+    public_repos = data.get("public_repos")
+    build_num = BUILD_NUMBER
+    build_desc = BUILD_DESC
+
     hero()
-    tile("build", "BUILD", TECH, "#ffffff", BUILD_NUMBER, BUILD_LABEL, BUILD_DESC, 3.1, 0)
-    tile("brand", "BRAND", STUDIO, "#ffffff", BRAND_NUMBER, BRAND_LABEL, BRAND_DESC, 3.35, 1)
+    tile("build", "BUILD", TECH, "#ffffff", build_num, BUILD_LABEL, build_desc, 3.1, 0)
+    tile("brand", "BRAND", STUDIO, "#ffffff", brand_num, BRAND_LABEL, brand_desc, 3.35, 1)
     tile("learn", "LEARN", LEARN_COLOR, INK, LEARN_NUMBER, LEARN_LABEL, LEARN_DESC, 3.6, 2)
     activity(data)
 

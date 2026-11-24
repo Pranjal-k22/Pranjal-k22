@@ -89,12 +89,44 @@ def compute_longest_streak(days):
     return longest, longest_start, longest_end
 
 
-def build_data(days):
+def fetch_public_stats(username):
+    stats = {"public_repos": 35}
+    token = os.environ.get("GITHUB_TOKEN")
+    headers = {"User-Agent": "profile-readme-bot/1.0"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+        try:
+            r = requests.get(f"https://api.github.com/users/{username}", headers=headers, timeout=10)
+            if r.ok:
+                stats["public_repos"] = r.json().get("public_repos", 35)
+                return stats
+        except Exception as e:
+            print(f"API stats failed: {e}")
+    # Fallback to public scraping
+    try:
+        r = requests.get(f"https://github.com/{username}", headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
+        if r.ok:
+            soup = BeautifulSoup(r.text, "html.parser")
+            for a in soup.find_all("a"):
+                if "repositories" in a.get("href", ""):
+                    counter = a.find("span", class_="Counter")
+                    if counter:
+                        m = re.search(r"(\d+)", counter.get_text(strip=True))
+                        if m:
+                            stats["public_repos"] = int(m.group(1))
+                            break
+    except Exception as e:
+        print(f"could not scrape profile stats: {e}")
+    return stats
+
+
+def build_data(days, public_stats=None):
     total = sum(d["count"] for d in days)
     active_days = sum(1 for d in days if d["count"] > 0)
     best = max(days, key=lambda d: d["count"]) if days else {"date": "", "count": 0}
     cur_len, cur_start, cur_end = compute_current_streak(days)
     long_len, long_start, long_end = compute_longest_streak(days)
+    repos = public_stats.get("public_repos", 35) if public_stats else 35
 
     monthly = {}
     for d in days:
@@ -106,6 +138,7 @@ def build_data(days):
         "username": USERNAME,
         "generated_at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "range": {"start": days[0]["date"], "end": days[-1]["date"]} if days else {"start": "", "end": ""},
+        "public_repos": repos,
         "total_contributions": total,
         "active_days": active_days,
         "avg_per_active_day": round(total / active_days, 1) if active_days else 0,
@@ -119,7 +152,8 @@ def build_data(days):
 
 if __name__ == "__main__":
     days = fetch_days()
-    data = build_data(days)
+    stats = fetch_public_stats(USERNAME)
+    data = build_data(days, stats)
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
