@@ -186,9 +186,9 @@ def hero():
         portrait_svg = f"""
 <!-- Right Column: Illustrated Cutout Portrait -->
 <g class="r" {d(0.35)}>
-  <image x="535" y="20" width="280" height="385"
+  <image x="535" y="20" width="290" height="385"
+         style="mix-blend-mode: multiply;"
          href="data:image/png;base64,{b64_data}"
-         xlink:href="data:image/png;base64,{b64_data}"
          preserveAspectRatio="xMidYMid meet"/>
 </g>"""
     else:

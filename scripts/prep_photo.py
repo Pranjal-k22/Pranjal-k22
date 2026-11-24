@@ -22,7 +22,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 def find_input_file(arg_path=None):
     if arg_path and not arg_path.startswith("-"):
         return arg_path
-    for candidate in ["img2.png", "img2.jpg", "img-new.jpg", "img-new.png", "source-img.png", "source-img.jpg", "source-photo.jpg", "source-photo.png", "source-photo.jpeg"]:
+    for candidate in ["img4.png", "img4.jpg", "img2.png", "img2.jpg", "img-new.jpg", "img-new.png", "source-img.png", "source-img.jpg", "source-photo.jpg", "source-photo.png", "source-photo.jpeg"]:
         p = os.path.join(HERE, "..", candidate)
         if os.path.isfile(p):
             return p
@@ -36,6 +36,17 @@ if not os.path.exists(INP):
     sys.exit(1)
 
 print(f"Processing '{INP}' -> '{OUT}'...")
+
+if os.path.basename(INP).startswith("img4"):
+    # Direct illustration mode: preserve original artwork intact (no rembg/cropping)
+    raw = Image.open(INP)
+    target_h = 770
+    target_w = int(raw.width * (target_h / raw.height))
+    resized = raw.resize((target_w, target_h), Image.Resampling.LANCZOS)
+    os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
+    resized.save(OUT, "PNG", optimize=True)
+    print(f"wrote {OUT} directly from illustration ({resized.size[0]}x{resized.size[1]}, {os.path.getsize(OUT)} bytes)")
+    sys.exit(0)
 
 # 1. cut out the subject
 session = new_session("u2net")
