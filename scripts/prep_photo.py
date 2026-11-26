@@ -12,17 +12,26 @@ Usage:
 import os
 import sys
 
-import cv2
-import numpy as np
 from PIL import Image
-from rembg import new_session, remove
+try:
+    import cv2
+    import numpy as np
+except ImportError:
+    cv2 = None
+    np = None
+
+try:
+    from rembg import new_session, remove
+except ImportError:
+    new_session = None
+    remove = None
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 def find_input_file(arg_path=None):
     if arg_path and not arg_path.startswith("-"):
         return arg_path
-    for candidate in ["img4.png", "img4.jpg", "img2.png", "img2.jpg", "img-new.jpg", "img-new.png", "source-img.png", "source-img.jpg", "source-photo.jpg", "source-photo.png", "source-photo.jpeg"]:
+    for candidate in ["img1.png", "img1.jpg", "img4.png", "img4.jpg", "img2.png", "img2.jpg", "img-new.jpg", "img-new.png", "source-img.png", "source-img.jpg", "source-photo.jpg", "source-photo.png", "source-photo.jpeg"]:
         p = os.path.join(HERE, "..", candidate)
         if os.path.isfile(p):
             return p
@@ -32,10 +41,24 @@ INP = find_input_file(sys.argv[1] if len(sys.argv) > 1 else None)
 OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "cards", "portrait.png")
 
 if not os.path.exists(INP):
-    print(f"Error: source photo not found at '{INP}'. Please place img2.png or source-photo.jpg in the repo root.", file=sys.stderr)
+    print(f"Error: source photo not found at '{INP}'. Please place img1.png or img4.png in the repo root.", file=sys.stderr)
     sys.exit(1)
 
 print(f"Processing '{INP}' -> '{OUT}'...")
+
+if os.path.basename(INP).startswith("img1"):
+    # Panoramic landscape mode: scale and crop banner to 880x420 aspect ratio (1760x840 for 2x retina)
+    raw = Image.open(INP).convert("L")
+    banner_w, banner_h = 1760, 840
+    scale = banner_w / raw.width
+    scaled_h = int(raw.height * scale)
+    scaled = raw.resize((banner_w, scaled_h), Image.Resampling.LANCZOS)
+    y_offset = max(0, (scaled_h - banner_h) // 2)
+    banner = scaled.crop((0, y_offset, banner_w, y_offset + banner_h))
+    os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
+    banner.save(OUT, "PNG", optimize=True)
+    print(f"wrote panoramic banner to {OUT} ({banner.size[0]}x{banner.size[1]}, {os.path.getsize(OUT)} bytes)")
+    sys.exit(0)
 
 if os.path.basename(INP).startswith("img4"):
     # Precise transparent PNG mode: floodfill outer background so complete person on the rock is kept

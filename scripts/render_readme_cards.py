@@ -19,6 +19,10 @@ import os
 import random
 import re
 from html import escape
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(HERE, "..")
@@ -180,10 +184,35 @@ def text_lines(x, y, lines, lh, attrs):
 def hero():
     h = 420
     portrait_svg = ""
+    is_panoramic = False
     if os.path.exists(PORTRAIT):
         with open(PORTRAIT, "rb") as f:
             b64_data = base64.b64encode(f.read()).decode("ascii")
-        portrait_svg = f"""
+        try:
+            if Image:
+                with Image.open(PORTRAIT) as p_img:
+                    is_panoramic = (p_img.width / p_img.height) > 1.3
+            else:
+                # Read PNG IHDR dimensions directly without PIL
+                import struct
+                with open(PORTRAIT, "rb") as f_img:
+                    f_img.seek(16)
+                    pw, ph = struct.unpack(">II", f_img.read(8))
+                    is_panoramic = (pw / ph) > 1.3
+        except Exception:
+            is_panoramic = False
+
+        if is_panoramic:
+            portrait_svg = f"""
+<!-- Panoramic Mountain Landscape Hero Art -->
+<g class="f" {d(0.2)}>
+  <image x="0" y="0" width="{W}" height="{h}"
+         preserveAspectRatio="xMaxYMid slice"
+         href="data:image/png;base64,{b64_data}"/>
+  <rect width="{W}" height="{h}" fill="url(#fade-left)"/>
+</g>"""
+        else:
+            portrait_svg = f"""
 <!-- Right Column: Illustrated Cutout Portrait -->
 <g class="r" {d(0.35)}>
   <image x="535" y="20" width="290" height="385"
@@ -218,6 +247,13 @@ def hero():
 
     body = f"""
 <defs>
+  <clipPath id="card-clip"><rect width="{W}" height="{h}" rx="14"/></clipPath>
+  <linearGradient id="fade-left" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="{PAPER}" stop-opacity="1"/>
+    <stop offset="40%" stop-color="{PAPER}" stop-opacity="0.98"/>
+    <stop offset="55%" stop-color="{PAPER}" stop-opacity="0.45"/>
+    <stop offset="72%" stop-color="{PAPER}" stop-opacity="0"/>
+  </linearGradient>
   <linearGradient id="shine" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="600" y2="0">
     <stop offset="0" stop-color="{INK}"/><stop offset=".42" stop-color="{INK}"/>
     <stop offset=".5" stop-color="{TECH}"/><stop offset=".58" stop-color="{INK}"/>
@@ -227,23 +263,24 @@ def hero():
   </linearGradient>
 </defs>
 <rect width="{W}" height="{h}" rx="14" fill="{PAPER}"/>
-
-<!-- Left Column: Editorial Headline & Bio -->
-<g class="f" {d(0)}>
-  <rect class="live" x="48" y="49" width="8" height="8" rx="2" fill="{TECH}"/>
-  <text x="66" y="57" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">{ROLE_BADGE}</text>
+<g clip-path="url(#card-clip)">
+  {portrait_svg if is_panoramic else ""}
+  <!-- Left Column: Editorial Headline & Bio -->
+  <g class="f" {d(0)}>
+    <rect class="live" x="48" y="49" width="8" height="8" rx="2" fill="{TECH}"/>
+    <text x="66" y="57" font-family="{MONO}" font-size="12" letter-spacing="1" fill="{MUTED}">{ROLE_BADGE}</text>
+  </g>
+  <text class="r" {d(0.15)} x="44" y="190" font-family="{SERIF}" font-size="116" letter-spacing="-2.5" fill="{INK}">{FIRST_NAME}</text>
+  <text class="r" {d(0.3)} x="44" y="290" font-family="{SERIF}" font-style="italic" font-size="116" letter-spacing="-2.5" fill="url(#shine)">{LAST_NAME}</text>
+  <g class="r" {d(0.55)}>
+    {text_lines(48, 338, TAGLINE_LINES, 27, f'font-family="{SANS}" font-size="18" fill="{INK_SOFT}"')}
+  </g>
+  <g class="f" {d(0.8)}>
+    <text x="48" y="396" font-family="{MONO}" font-size="13" fill="{INK}">{WEBSITE_DISPLAY}</text>
+    <text class="nu" x="224" y="396" font-family="{MONO}" font-size="13" fill="{TECH}">&#8599;</text>
+  </g>
+  {portrait_svg if not is_panoramic else ""}
 </g>
-<text class="r" {d(0.15)} x="44" y="190" font-family="{SERIF}" font-size="116" letter-spacing="-2.5" fill="{INK}">{FIRST_NAME}</text>
-<text class="r" {d(0.3)} x="44" y="290" font-family="{SERIF}" font-style="italic" font-size="116" letter-spacing="-2.5" fill="url(#shine)">{LAST_NAME}</text>
-<g class="r" {d(0.55)}>
-  {text_lines(48, 338, TAGLINE_LINES, 27, f'font-family="{SANS}" font-size="18" fill="{INK_SOFT}"')}
-</g>
-<g class="f" {d(0.8)}>
-  <text x="48" y="396" font-family="{MONO}" font-size="13" fill="{INK}">{WEBSITE_DISPLAY}</text>
-  <text class="nu" x="224" y="396" font-family="{MONO}" font-size="13" fill="{TECH}">&#8599;</text>
-</g>
-
-{portrait_svg}
 """
     write("hero.svg", svg(W, h, body, ["serif", "serif-i", "sans", "mono"],
                           f"{FIRST_NAME} {LAST_NAME} - {ROLE_BADGE}"))
@@ -280,8 +317,15 @@ def tile(name, label, color, on, num, word, blurb, delay, pos):
         for i, l in enumerate(lines)
     )
     total_len = len(f"{num} {word}")
-    font_size = 36 if total_len > 12 else 40 if total_len > 10 else 44
-    y_pos = 110 if font_size < 40 else 112
+    if total_len > 15:
+        font_size = 28
+    elif total_len > 12:
+        font_size = 33
+    elif total_len > 10:
+        font_size = 38
+    else:
+        font_size = 44
+    y_pos = 108 if font_size <= 33 else 110 if font_size < 40 else 112
     body = f"""
 <defs>
   <clipPath id="card"><rect width="{TILE_W}" height="{TILE_H}" rx="14"/></clipPath>
