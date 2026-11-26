@@ -47,14 +47,34 @@ if not os.path.exists(INP):
 print(f"Processing '{INP}' -> '{OUT}'...")
 
 if os.path.basename(INP).startswith("img1"):
-    # Panoramic landscape mode: scale and crop banner to 880x420 aspect ratio (1760x840 for 2x retina)
+    # Panoramic landscape mode: zoom to fit full vertical height (face to toe complete)
+    # in 880x420 aspect ratio (1760x840 for 2x retina) with smooth left feather
     raw = Image.open(INP).convert("L")
-    banner_w, banner_h = 1760, 840
-    scale = banner_w / raw.width
-    scaled_h = int(raw.height * scale)
-    scaled = raw.resize((banner_w, scaled_h), Image.Resampling.LANCZOS)
-    y_offset = max(0, (scaled_h - banner_h) // 2)
-    banner = scaled.crop((0, y_offset, banner_w, y_offset + banner_h))
+    canvas_w, canvas_h = 1760, 840
+    PAPER_GRAY = 243
+
+    # Scale to match canvas height exactly (zero vertical cropping: full face to toe visible)
+    scale = canvas_h / raw.height
+    w_img = int(raw.width * scale)
+    h_img = canvas_h
+
+    resized = raw.resize((w_img, h_img), Image.Resampling.LANCZOS)
+    try:
+        import numpy as np
+        arr_img = np.array(resized, dtype=np.float32)
+        fade_w = min(220, w_img // 4)
+        ramp = np.linspace(0.0, 1.0, fade_w)[None, :]
+        arr_img[:, :fade_w] = (1.0 - ramp) * PAPER_GRAY + ramp * arr_img[:, :fade_w]
+        canvas_arr = np.full((canvas_h, canvas_w), PAPER_GRAY, dtype=np.uint8)
+        x_start = max(0, canvas_w - w_img)
+        canvas_arr[:, x_start:] = np.clip(arr_img, 0, 255).astype(np.uint8)
+        banner = Image.fromarray(canvas_arr)
+    except Exception:
+        canvas_img = Image.new("L", (canvas_w, canvas_h), PAPER_GRAY)
+        x_start = max(0, canvas_w - w_img)
+        canvas_img.paste(resized, (x_start, 0))
+        banner = canvas_img
+
     os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
     banner.save(OUT, "PNG", optimize=True)
     print(f"wrote panoramic banner to {OUT} ({banner.size[0]}x{banner.size[1]}, {os.path.getsize(OUT)} bytes)")
